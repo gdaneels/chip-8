@@ -5,6 +5,7 @@
 #include "interpreter.h"
 
 #define ADDR_BUILTIN_FONT 0X50 // memory address should go from 0x50 to 0x9F
+#define ADDR_START_PROGRAM 0X200 // start memory address of chip-8 program
 
 static uint8_t memory[4096];
 static uint16_t pc; // program counter, points at the current instruction in memory
@@ -44,18 +45,35 @@ static void print_memory_val(uint16_t addr) {
 	printf("Value at memory addr %" PRIu16 " is: %u\n", addr, memory[addr]);
 }
 
+static void add_instruction(void) {
+	uint16_t instruction = 0x1234;
+	memcpy(&memory[ADDR_START_PROGRAM], &instruction, sizeof(instruction));
+	printf("Added instruction to memory: %x.\n", instruction);
+}
+
+void init(void) {
+	pc = 0;
+}
+
+void read_program(void) {
+	add_instruction();
+}
+
 void run(void) {
 	// for now, we ignore the timers as they are not clear for me yet
 	
-	printf("run the interpreter!");
+	printf("run the interpreter!\n");
 	// fetch
 	// TO TEST THIS INSTRUCTION BUILDING
 	uint16_t instruction = (memory[pc] << 8) | memory[pc];
 	// increment the PC immediately by 2
 	pc += 2;
 
-	// decode
-	switch (instruction) {
+	// decodej
+	printf("Decoding instruction...\n");
+	uint8_t first_nibble = (instruction & 0xF000) >> 12;
+	printf("First nibble: %x\n", first_nibble);
+	switch (first_nibble) {
 		case 0:
 			break;
 		case 1:
