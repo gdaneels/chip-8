@@ -4,3 +4,4 @@
 - Add SDL library support to CMakeLists 
 - Look into how CHIP 8 programs are formatted
 - Look into how to read CHIP8 programs in this C interpreter
+	- Look into why bytes are not read in as expected.
