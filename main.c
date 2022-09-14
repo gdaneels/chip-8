@@ -5,6 +5,7 @@
 
 #include "stack.h"
 #include "interpreter.h"
+#include "read.h"
 
 int main(int argc, char* argv[]) {
 	//init_builtin_font();
@@ -24,7 +25,7 @@ int main(int argc, char* argv[]) {
 //	}
 
 	init();
-	read_program();
+	read_program("/home/gdaneels/Downloads/ibmlogo.ch8");
 	run();
 	return 0;
 }

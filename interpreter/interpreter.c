@@ -55,23 +55,20 @@ void init(void) {
 	pc = 0;
 }
 
-void read_program(void) {
-	add_instruction();
-}
-
 void run(void) {
 	// for now, we ignore the timers as they are not clear for me yet
-	
+	pc = ADDR_START_PROGRAM;	
 	printf("run the interpreter!\n");
 	// fetch
 	// TO TEST THIS INSTRUCTION BUILDING
-	uint16_t instruction = (memory[pc] << 8) | memory[pc];
+	uint16_t instruction = (memory[pc+1] << 8) | memory[pc];
 	// increment the PC immediately by 2
 	pc += 2;
 
 	// decodej
-	printf("Decoding instruction...\n");
-	uint8_t first_nibble = (instruction & 0xF000) >> 12;
+	printf("Decoding instruction being 0x%x.\n", instruction);
+	// for the first nibble, we just need to shift (no masking necessary)
+	uint8_t first_nibble = instruction >> 12;
 	printf("First nibble: %x\n", first_nibble);
 	switch (first_nibble) {
 		case 0:
