@@ -2,6 +2,7 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include "read.h"
 #include "interpreter.h"
 
 #define ADDR_BUILTIN_FONT 0X50 // memory address should go from 0x50 to 0x9F
@@ -51,7 +52,8 @@ static void add_instruction(void) {
 	printf("Added instruction to memory: %x.\n", instruction);
 }
 
-void init(void) {
+void init(const char* program) {
+	read_program(program, memory, ADDR_START_PROGRAM);
 	pc = 0;
 }
 

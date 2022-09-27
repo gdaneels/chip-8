@@ -5,7 +5,6 @@
 
 #include "stack.h"
 #include "interpreter.h"
-#include "read.h"
 
 int main(int argc, char* argv[]) {
 	//init_builtin_font();
@@ -24,8 +23,12 @@ int main(int argc, char* argv[]) {
 //		printf("top of stack is now %" PRIu16 "\n", top);
 //	}
 
-	init();
-	read_program("/home/gdaneels/Downloads/ibmlogo.ch8");
-	run();
+	if (argc <= 1) {
+		printf("No input program given. Exiting.\n");
+		return 1;
+	}
+	const char* program = argv[1];
+	init(program);
+	// run();
 	return 0;
 }
