@@ -55,6 +55,7 @@ static void add_instruction(void) {
 void init(const char* program) {
 	read_program(program, memory, ADDR_START_PROGRAM);
 	pc = 0;
+	printf("instruction at %u is %02x\n", ADDR_START_PROGRAM, memory[ADDR_START_PROGRAM + 131]);
 }
 
 void run(void) {
