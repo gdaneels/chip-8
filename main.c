@@ -2,6 +2,7 @@
 #include <stdint.h> 
 #include <string.h>
 #include <inttypes.h>
+#include <SDL2/SDL.h>
 
 #include "stack.h"
 #include "interpreter.h"
@@ -22,13 +23,12 @@ int main(int argc, char* argv[]) {
 //		stack_top(&top);
 //		printf("top of stack is now %" PRIu16 "\n", top);
 //	}
-
 	if (argc <= 1) {
 		printf("No input program given. Exiting.\n");
 		return 1;
 	}
 	const char* program = argv[1];
 	init(program);
-	// run();
+	run();
 	return 0;
 }

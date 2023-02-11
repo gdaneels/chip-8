@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <stdlib.h>
 
 #include "read.h"
 #include "interpreter.h"
+#include "sdl.h"
 
+#define IMAGE_SCALE_FACTOR 4
+#define IMAGE_WIDTH IMAGE_SCALE_FACTOR * 64
+#define IMAGE_HEIGHT IMAGE_SCALE_FACTOR * 32
 #define ADDR_BUILTIN_FONT 0X50 // memory address should go from 0x50 to 0x9F
 #define ADDR_START_PROGRAM 0X200 // start memory address of chip-8 program
 
@@ -53,34 +58,54 @@ static void add_instruction(void) {
 }
 
 void init(const char* program) {
+    // read in program
 	read_program(program, memory, ADDR_START_PROGRAM);
+    // initialize program counter
 	pc = 0;
 	printf("instruction at %u is %02x\n", ADDR_START_PROGRAM, memory[ADDR_START_PROGRAM + 131]);
 }
 
 void run(void) {
-	// for now, we ignore the timers as they are not clear for me yet
-	pc = ADDR_START_PROGRAM;	
-	printf("run the interpreter!\n");
-	// fetch
-	// TO TEST THIS INSTRUCTION BUILDING
-	uint16_t instruction = (memory[pc+1] << 8) | memory[pc];
-	// increment the PC immediately by 2
-	pc += 2;
+    Image* image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
+    while(1) {
+        sdl_prepare_scene(image);
+        sdl_get_input();
 
-	// decodej
-	printf("Decoding instruction being 0x%x.\n", instruction);
-	// for the first nibble, we just need to shift (no masking necessary)
-	uint8_t first_nibble = instruction >> 12;
-	printf("First nibble: %x\n", first_nibble);
-	switch (first_nibble) {
-		case 0:
-			break;
-		case 1:
-			break;
-		default:
-			break; // this has to be removed and replaced by the default statement.
-	}
-			
-	// execute
+        // for now, we ignore the timers as they are not clear for me yet
+        pc = ADDR_START_PROGRAM;	
+        
+        // fetch
+        // TO TEST THIS INSTRUCTION BUILDING
+        uint16_t instruction = (memory[pc+1] << 8) | memory[pc];
+        // increment the PC immediately by 2
+        pc += 2;
+
+        // decode
+        printf("Decoding instruction being 0x%x.\n", instruction);
+        // for the first nibble, we just need to shift (no masking necessary)
+        uint8_t first_nibble = instruction >> 12;
+        printf("First nibble: %x\n", first_nibble);
+        switch (first_nibble) {
+            case 0:
+                printf("Clear the screen!\n");
+                // probably this leads to 00E0 aka `clear the screen`
+                sdl_instr_clear_screen(image);
+                exit(1);
+                break;
+            case 1:
+                break;
+            case 0xe:
+                printf("come in e\n");
+                break;
+            default:
+                break; // this has to be removed and replaced by the default statement.
+        }
+                
+        // execute
+        
+        sdl_present_scene(image);
+        // should be replaced by timer of chip 8?
+		sdl_do_delay(16);
+    }
+    sdl_free(image);
 }
