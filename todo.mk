@@ -12,3 +12,4 @@
 - Make generic graphics layer so SDL can be replaced with any other graphics library
 	- Will be handy if we port to ESP32
 - Get rid of nvim not found warnings/errors
+- Put built in font, as defines, together with other defines in interpreter.h
