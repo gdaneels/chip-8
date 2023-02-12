@@ -13,6 +13,11 @@
 #define ADDR_BUILTIN_FONT 0X50 // memory address should go from 0x50 to 0x9F
 #define ADDR_START_PROGRAM 0X200 // start memory address of chip-8 program
 
+#define FIRST_NIBBLE(instr) (((instr) >> 12) & 0x000F)
+#define SECOND_NIBBLE(instr) (((instr) >> 8) & 0x000F)
+#define THIRD_NIBBLE(instr) (((instr) >> 4) & 0x000F)
+#define FOURTH_NIBBLE(instr) ((instr) & 0x000F)
+
 static uint8_t memory[4096];
 static uint16_t pc; // program counter, points at the current instruction in memory
 static uint16_t i; // index register, to point at locations in memory
@@ -66,13 +71,15 @@ void init(const char* program) {
 }
 
 void run(void) {
+    // for now, we ignore the timers as they are not clear for me yet
+    pc = ADDR_START_PROGRAM;	
+
     Image* image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
+
     while(1) {
         sdl_prepare_scene(image);
         sdl_get_input();
 
-        // for now, we ignore the timers as they are not clear for me yet
-        pc = ADDR_START_PROGRAM;	
         
         // fetch
         // TO TEST THIS INSTRUCTION BUILDING
@@ -83,19 +90,25 @@ void run(void) {
         // decode
         printf("Decoding instruction being 0x%x.\n", instruction);
         // for the first nibble, we just need to shift (no masking necessary)
-        uint8_t first_nibble = instruction >> 12;
+        uint8_t first_nibble = FIRST_NIBBLE(instruction);
+        uint8_t second_nibble = SECOND_NIBBLE(instruction);
+        uint8_t third_nibble = THIRD_NIBBLE(instruction);
+        uint8_t fourth_nibble = FOURTH_NIBBLE(instruction);
         printf("First nibble: %x\n", first_nibble);
+        printf("Second nibble: %x\n", second_nibble);
+        printf("Third nibble: %x\n", third_nibble);
+        printf("Fourth nibble: %x\n", fourth_nibble);
         switch (first_nibble) {
             case 0:
                 printf("Clear the screen!\n");
                 // probably this leads to 00E0 aka `clear the screen`
                 sdl_instr_clear_screen(image);
-                exit(1);
                 break;
             case 1:
                 break;
+
             case 0xe:
-                printf("come in e\n");
+                // printf("come in e\n");
                 break;
             default:
                 break; // this has to be removed and replaced by the default statement.

@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
 	if (argc <= 1) {
 		printf("No input program given. Exiting.\n");
 		return 1;
-	}
+    }
+
 	const char* program = argv[1];
 	init(program);
 	run();
