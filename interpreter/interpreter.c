@@ -76,11 +76,11 @@ void run(void) {
 
     Image* image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
 
+    sdl_prepare_scene(image);
+    sdl_instr_draw_pixel(image, 50, 50);
     while(1) {
-        sdl_prepare_scene(image);
         sdl_get_input();
 
-        
         // fetch
         // TO TEST THIS INSTRUCTION BUILDING
         uint16_t instruction = (memory[pc+1] << 8) | memory[pc];
@@ -100,7 +100,7 @@ void run(void) {
         printf("Fourth nibble: %x\n", fourth_nibble);
         switch (first_nibble) {
             case 0:
-                printf("Clear the screen!\n");
+                // printf("Clear the screen!\n");
                 // probably this leads to 00E0 aka `clear the screen`
                 sdl_instr_clear_screen(image);
                 break;

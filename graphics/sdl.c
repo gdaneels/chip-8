@@ -77,3 +77,10 @@ Image* sdl_init(int width, int height) {
 void sdl_instr_clear_screen(Image* app) {
 	SDL_RenderClear(app->renderer);
 }
+
+void sdl_instr_draw_pixel(Image* app, int x, int y) {
+    SDL_SetRenderDrawColor(app->renderer, 255, 0, 0, 255);
+    for (uint8_t i = 0; i < 50; ++i)
+        SDL_RenderDrawPoint(app->renderer, i, i);
+	// SDL_RenderDrawPoint(app->renderer, x, y);
+}
