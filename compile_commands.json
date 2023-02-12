@@ -1,0 +1,27 @@
+[
+{
+  "directory": "/home/gdaneels/workspace/chip-8/build",
+  "command": "/usr/bin/cc  -I/usr/include/SDL2 -I/home/gdaneels/workspace/chip-8/utils/include -I/home/gdaneels/workspace/chip-8/interpreter/include -I/home/gdaneels/workspace/chip-8/graphics/include  -o CMakeFiles/chip8.dir/main.c.o -c /home/gdaneels/workspace/chip-8/main.c",
+  "file": "/home/gdaneels/workspace/chip-8/main.c"
+},
+{
+  "directory": "/home/gdaneels/workspace/chip-8/build",
+  "command": "/usr/bin/cc  -I/usr/include/SDL2 -I/home/gdaneels/workspace/chip-8/utils/include -I/home/gdaneels/workspace/chip-8/interpreter/include -I/home/gdaneels/workspace/chip-8/graphics/include  -o CMakeFiles/chip8.dir/utils/stack.c.o -c /home/gdaneels/workspace/chip-8/utils/stack.c",
+  "file": "/home/gdaneels/workspace/chip-8/utils/stack.c"
+},
+{
+  "directory": "/home/gdaneels/workspace/chip-8/build",
+  "command": "/usr/bin/cc  -I/usr/include/SDL2 -I/home/gdaneels/workspace/chip-8/utils/include -I/home/gdaneels/workspace/chip-8/interpreter/include -I/home/gdaneels/workspace/chip-8/graphics/include  -o CMakeFiles/chip8.dir/interpreter/interpreter.c.o -c /home/gdaneels/workspace/chip-8/interpreter/interpreter.c",
+  "file": "/home/gdaneels/workspace/chip-8/interpreter/interpreter.c"
+},
+{
+  "directory": "/home/gdaneels/workspace/chip-8/build",
+  "command": "/usr/bin/cc  -I/usr/include/SDL2 -I/home/gdaneels/workspace/chip-8/utils/include -I/home/gdaneels/workspace/chip-8/interpreter/include -I/home/gdaneels/workspace/chip-8/graphics/include  -o CMakeFiles/chip8.dir/interpreter/read.c.o -c /home/gdaneels/workspace/chip-8/interpreter/read.c",
+  "file": "/home/gdaneels/workspace/chip-8/interpreter/read.c"
+},
+{
+  "directory": "/home/gdaneels/workspace/chip-8/build",
+  "command": "/usr/bin/cc  -I/usr/include/SDL2 -I/home/gdaneels/workspace/chip-8/utils/include -I/home/gdaneels/workspace/chip-8/interpreter/include -I/home/gdaneels/workspace/chip-8/graphics/include  -o CMakeFiles/chip8.dir/graphics/sdl.c.o -c /home/gdaneels/workspace/chip-8/graphics/sdl.c",
+  "file": "/home/gdaneels/workspace/chip-8/graphics/sdl.c"
+}
+]
