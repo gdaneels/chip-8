@@ -7,12 +7,6 @@
 #include "interpreter.h"
 #include "sdl.h"
 
-#define IMAGE_SCALE_FACTOR 4
-#define IMAGE_WIDTH IMAGE_SCALE_FACTOR * 64
-#define IMAGE_HEIGHT IMAGE_SCALE_FACTOR * 32
-#define ADDR_BUILTIN_FONT 0X50 // memory address should go from 0x50 to 0x9F
-#define ADDR_START_PROGRAM 0X200 // start memory address of chip-8 program
-
 #define FIRST_NIBBLE(instr) (((instr) >> 12) & 0x000F)
 #define SECOND_NIBBLE(instr) (((instr) >> 8) & 0x000F)
 #define THIRD_NIBBLE(instr) (((instr) >> 4) & 0x000F)
@@ -32,7 +26,7 @@ static void init_builtin_font(void) {
 	const uint8_t font_memory[] = {
 		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 		0x20, 0x60, 0x20, 0x20, 0x70, // 1
-		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		0xF1, 0x10, 0xF0, 0x80, 0xF0, // 2
 		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
 		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
 		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
@@ -62,6 +56,10 @@ static void add_instruction(void) {
 	printf("Added instruction to memory: %x.\n", instruction);
 }
 
+static uint16_t read_jump_addr(uint16_t instr) {
+    return instr & 0x0FFF;
+}
+
 void init(const char* program) {
     // read in program
 	read_program(program, memory, ADDR_START_PROGRAM);
@@ -71,6 +69,7 @@ void init(const char* program) {
 }
 
 void run(void) {
+    uint16_t instruction_count = 0;
     // for now, we ignore the timers as they are not clear for me yet
     pc = ADDR_START_PROGRAM;	
 
@@ -84,38 +83,40 @@ void run(void) {
         // fetch
         // TO TEST THIS INSTRUCTION BUILDING
         uint16_t instruction = (memory[pc+1] << 8) | memory[pc];
+        instruction_count++;
+        printf("***********************************\n");
+        printf("PC = %u (instruction #%u).\n", pc, instruction_count);
         // increment the PC immediately by 2
         pc += 2;
 
         // decode
-        printf("Decoding instruction being 0x%x.\n", instruction);
-        // for the first nibble, we just need to shift (no masking necessary)
         uint8_t first_nibble = FIRST_NIBBLE(instruction);
         uint8_t second_nibble = SECOND_NIBBLE(instruction);
         uint8_t third_nibble = THIRD_NIBBLE(instruction);
         uint8_t fourth_nibble = FOURTH_NIBBLE(instruction);
-        printf("First nibble: %x\n", first_nibble);
-        printf("Second nibble: %x\n", second_nibble);
-        printf("Third nibble: %x\n", third_nibble);
-        printf("Fourth nibble: %x\n", fourth_nibble);
+        printf("Instruction: 0x%x. Nibbles: %x, %x, %x and %x.\n", instruction, first_nibble, second_nibble, third_nibble, fourth_nibble);
+        // execute
         switch (first_nibble) {
             case 0:
                 // printf("Clear the screen!\n");
+                printf("Executing 00E0: clear screen instruction.\n");
                 // probably this leads to 00E0 aka `clear the screen`
                 sdl_instr_clear_screen(image);
                 break;
             case 1:
-                break;
+                // for now assume 1NNN (jump to NNN) instruction
+                printf("Executing 1NNN: jump instruction.\n");
+                uint16_t new_pc = read_jump_addr(instruction);
+                printf("Setting PC from 0x%x (%u) to 0x%x (%u).\n", pc, pc, new_pc, new_pc);
+                pc = new_pc;
 
+                break;
             case 0xe:
                 // printf("come in e\n");
                 break;
             default:
                 break; // this has to be removed and replaced by the default statement.
         }
-                
-        // execute
-        
         sdl_present_scene(image);
         // should be replaced by timer of chip 8?
 		sdl_do_delay(16);
