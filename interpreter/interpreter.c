@@ -64,14 +64,13 @@ void init(const char* program) {
     // read in program
 	read_program(program, memory, ADDR_START_PROGRAM);
     // initialize program counter
-	pc = 0;
-	printf("instruction at %u is %02x\n", ADDR_START_PROGRAM, memory[ADDR_START_PROGRAM + 131]);
+	pc = ADDR_START_PROGRAM;
 }
 
 void run(void) {
     uint16_t instruction_count = 0;
+    uint16_t instruction = 0x0;
     // for now, we ignore the timers as they are not clear for me yet
-    pc = ADDR_START_PROGRAM;	
 
     Image* image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
 
@@ -81,8 +80,7 @@ void run(void) {
         sdl_get_input();
 
         // fetch
-        // TO TEST THIS INSTRUCTION BUILDING
-        uint16_t instruction = (memory[pc+1] << 8) | memory[pc];
+        instruction = (memory[pc] << 8) | memory[pc+1];
         instruction_count++;
         printf("***********************************\n");
         printf("PC = %u (instruction #%u).\n", pc, instruction_count);
