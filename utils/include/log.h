@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-// Turning it all into one symbol
-#define FILE_LINE __FILE__ ":" SYM_TO_STR(__LINE__)
 // Extra step to expand symbol
 #define SYM_TO_STR(symbol) STRINGIFY(symbol)
 // Turn symbol into string literal
@@ -15,7 +13,7 @@
 #endif
 
 #define LOG(level, msg, ...) do { \
-    printf("%s > %s > ", level, FILE_LINE); \
+    printf("%s > %s:%s > ", level, __FILE__, SYM_TO_STR(__LINE__)); \
     printf(msg, ##__VA_ARGS__); \
     printf("\n"); \
 } while(0)
