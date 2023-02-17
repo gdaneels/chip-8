@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
+#include "log.h"
 #include "read.h"
 #include "interpreter.h"
 #include "sdl.h"
@@ -47,13 +48,13 @@ static void init_builtin_font(void) {
 
 static void print_memory_val(uint16_t addr) {
 	// TODO also print hexadecimal value
-	printf("Value at memory addr %" PRIu16 " is: %u\n", addr, memory[addr]);
+	LOGI("Value at memory addr %" PRIu16 " is: %u", addr, memory[addr]);
 }
 
 static void add_instruction(void) {
 	uint16_t instruction = 0x1234;
 	memcpy(&memory[ADDR_START_PROGRAM], &instruction, sizeof(instruction));
-	printf("Added instruction to memory: %x.\n", instruction);
+	LOGI("Added instruction to memory: %x.", instruction);
 }
 
 static uint16_t read_jump_addr(uint16_t instr) {
@@ -82,8 +83,8 @@ void run(void) {
         // fetch
         instruction = (memory[pc] << 8) | memory[pc+1];
         instruction_count++;
-        printf("***********************************\n");
-        printf("PC = %u (instruction #%u).\n", pc, instruction_count);
+        LOGD("***********************************");
+        LOGD("PC = %u (instruction #%u).", pc, instruction_count);
         // increment the PC immediately by 2
         pc += 2;
 
@@ -92,25 +93,25 @@ void run(void) {
         uint8_t second_nibble = SECOND_NIBBLE(instruction);
         uint8_t third_nibble = THIRD_NIBBLE(instruction);
         uint8_t fourth_nibble = FOURTH_NIBBLE(instruction);
-        printf("Instruction: 0x%x. Nibbles: %x, %x, %x and %x.\n", instruction, first_nibble, second_nibble, third_nibble, fourth_nibble);
+        LOGD("Instruction: 0x%x. Nibbles: %x, %x, %x and %x.", instruction, first_nibble, second_nibble, third_nibble, fourth_nibble);
         // execute
         switch (first_nibble) {
             case 0:
-                // printf("Clear the screen!\n");
-                printf("Executing 00E0: clear screen instruction.\n");
+                // printf("Clear the screen!");
+                LOGD("Executing 00E0: clear screen instruction.");
                 // probably this leads to 00E0 aka `clear the screen`
                 sdl_instr_clear_screen(image);
                 break;
             case 1:
                 // for now assume 1NNN (jump to NNN) instruction
-                printf("Executing 1NNN: jump instruction.\n");
+                LOGD("Executing 1NNN: jump instruction.");
                 uint16_t new_pc = read_jump_addr(instruction);
-                printf("Setting PC from 0x%x (%u) to 0x%x (%u).\n", pc, pc, new_pc, new_pc);
+                LOGD("Setting PC from 0x%x (%u) to 0x%x (%u).", pc, pc, new_pc, new_pc);
                 pc = new_pc;
 
                 break;
             case 0xe:
-                // printf("come in e\n");
+                // printf("come in e");
                 break;
             default:
                 break; // this has to be removed and replaced by the default statement.

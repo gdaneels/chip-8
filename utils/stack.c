@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "log.h"
 #include "stack.h"
 
 typedef struct StackEntry StackEntry;
@@ -17,16 +18,16 @@ struct StackEntry {
 static StackEntry* stack_ptr = NULL;
 
 static void print_entry(StackEntry* sp) {
-	printf("StackEntry with value %u\n", sp->value);
+	LOGD("StackEntry with value %u", sp->value);
 	if (sp->previous) {
-		printf("Has previous ptr with value %u\n", sp->previous->value);
+		LOGD("Has previous ptr with value %u", sp->previous->value);
 	} else {
-		printf("Does not have previous ptr.\n");
+		LOGD("Does not have previous ptr.");
 	}
 	if (sp->next) {
-		printf("Has next ptr with value %u\n", sp->next->value);
+		LOGD("Has next ptr with value %u", sp->next->value);
 	} else {
-		printf("Does not hae next ptr.\n");
+		LOGD("Does not have next ptr.");
 	}
 }
 
@@ -48,7 +49,7 @@ static StackEntry* push_to(StackType value, StackEntry* sp) {
 bool stack_push(StackType value) {
 	StackEntry* tmp_sp = push_to(value, stack_ptr);
 	if(!tmp_sp) {
-		printf("Unable to push new stack entry.\n");
+		LOGE("Unable to push new stack entry.");
 		return false;
 	}
 	// set new stack pointer to new stack entry
@@ -58,7 +59,7 @@ bool stack_push(StackType value) {
 
 bool stack_pop(StackType* top) {
 	if(!stack_ptr) {
-		printf("No element on stack to pop...\n");
+		LOGD("No element on stack to pop...");
 		return false;
 	}
 	// get the value
@@ -74,7 +75,7 @@ bool stack_pop(StackType* top) {
 
 bool stack_top(StackType* top) {
 	if(!stack_ptr) {
-		printf("Stack is empty.\n");
+		LOGD("Stack is empty.");
 		return false;
 	}
 	*top = stack_ptr->value;
@@ -82,5 +83,5 @@ bool stack_top(StackType* top) {
 }
 
 void stack_init(void) {
-	printf("Initialized stack.\n");
+	LOGD("Initialized stack.");
 }

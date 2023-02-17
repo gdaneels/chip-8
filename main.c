@@ -6,6 +6,7 @@
 
 #include "stack.h"
 #include "interpreter.h"
+#include "log.h"
 
 int main(int argc, char* argv[]) {
 	//init_builtin_font();
@@ -24,7 +25,7 @@ int main(int argc, char* argv[]) {
 //		printf("top of stack is now %" PRIu16 "\n", top);
 //	}
 	if (argc <= 1) {
-		printf("No input program given. Exiting.\n");
+		LOGE("No input program given. Exiting.");
 		return 1;
     }
 
