@@ -12,6 +12,10 @@
 - Make generic graphics layer so SDL can be replaced with any other graphics library
 	- Will be handy if we port to ESP32
 - [DONE] Get rid of nvim not found warnings/errors
+- [DONE] Make LOG macro's to do better debugging.
+- [DONE] Make dummy programs to call subroutines and return from them
+	- you can do this with printf '\xde\xad\xbe\ef' > deadbeef.ch8
+- Implement instruction 0NNN (do not implement) and 6XNN and 7XNN
 - Put built in font, as defines, together with other defines in interpreter.h
 - Generate debug information:
 	- Write PC
@@ -19,4 +23,6 @@
 	- Write out all nibbles (to see that they're read correctly)
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
-- Make LOG macro's to do better debugging.
+- Find a system to efficiently parse the correct instruction
+- How should the program stop?
+
