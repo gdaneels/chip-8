@@ -7,6 +7,7 @@
 #include "read.h"
 #include "interpreter.h"
 #include "sdl.h"
+#include "stack.h"
 
 #define FIRST_NIBBLE(instr) (((instr) >> 12) & 0x000F)
 #define SECOND_NIBBLE(instr) (((instr) >> 8) & 0x000F)
@@ -57,13 +58,15 @@ static void add_instruction(void) {
 	LOGI("Added instruction to memory: %x.", instruction);
 }
 
-static uint16_t read_jump_addr(uint16_t instr) {
+static inline uint16_t read_nnn(uint16_t instr) {
     return instr & 0x0FFF;
 }
 
 void init(const char* program) {
     // read in program
 	read_program(program, memory, ADDR_START_PROGRAM);
+    // initialize stack
+    stack_init();
     // initialize program counter
 	pc = ADDR_START_PROGRAM;
 }
@@ -77,16 +80,17 @@ void run(void) {
 
     sdl_prepare_scene(image);
     sdl_instr_draw_pixel(image, 50, 50);
-    while(1) {
+    while(instruction_count < 3) {
         sdl_get_input();
 
         // fetch
         instruction = (memory[pc] << 8) | memory[pc+1];
         instruction_count++;
         LOGD("***********************************");
-        LOGD("PC = %u (instruction #%u).", pc, instruction_count);
+        uint16_t next_pc = pc + 2;
+        LOGD("Current PC = %u (0x%x) (instruction #%u), incrementing to %u (0x%x).", pc, pc, instruction_count, next_pc, next_pc);
         // increment the PC immediately by 2
-        pc += 2;
+        pc = next_pc;
 
         // decode
         uint8_t first_nibble = FIRST_NIBBLE(instruction);
@@ -97,20 +101,71 @@ void run(void) {
         // execute
         switch (first_nibble) {
             case 0:
-                // printf("Clear the screen!");
-                LOGD("Executing 00E0: clear screen instruction.");
-                // probably this leads to 00E0 aka `clear the screen`
-                sdl_instr_clear_screen(image);
-                break;
-            case 1:
-                // for now assume 1NNN (jump to NNN) instruction
-                LOGD("Executing 1NNN: jump instruction.");
-                uint16_t new_pc = read_jump_addr(instruction);
-                LOGD("Setting PC from 0x%x (%u) to 0x%x (%u).", pc, pc, new_pc, new_pc);
-                pc = new_pc;
+                {
+                    switch (second_nibble) {
+                        case 0:
+                            {
+                                switch (fourth_nibble) {
+                                    case 0:
+                                        {
+                                            LOGD("Executing 00E0: clear screen instruction.");
+                                            sdl_instr_clear_screen(image);
+                                            break;
+                                        }
+                                    case 0xe:
+                                        {
+                                            uint16_t return_pc = 0;
+                                            LOGD("Executing 00EE: return from subroutine instruction.");
+                                            if (!stack_pop(&return_pc)) {
+                                                LOGE("Popping from stack failed.");
+                                                exit(1);
+                                            }
+                                            LOGD("Popped PC 0x%x (%u) from stack.", return_pc, return_pc);
+                                            pc = return_pc;
 
-                break;
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            break;
+                                        }
+                                }
+
+                                break;
+                            }
+                        default:
+                            {
+                                LOGD("Instruction 0NNN not implemented.");
+                                exit(1);
+                                break;
+                            }
+                    }
+                    break;
+                }
+            case 1:
+                {
+                    // for now assume 1NNN (jump to NNN) instruction
+                    LOGD("Executing 1NNN: jump instruction.");
+                    uint16_t memory_location = read_nnn(instruction);
+                    LOGD("Setting PC from 0x%x (%u) to 0x%x (%u).", pc, pc, memory_location, memory_location);
+                    // pc = memory_location;
+
+                    break;
+                }
+            case 2:
+                {
+                    LOGD("Executing 2NNN: call subroutine instruction.");
+                    uint16_t memory_location = read_nnn(instruction);
+                    LOGD("Pushing current PC 0x%x (%u) to stack.", pc, pc);
+                    if (!stack_push(pc)) {
+                        exit(1);
+                    }
+                    LOGD("Setting PC from 0x%x (%u) to 0x%x (%u).", pc, pc, memory_location, memory_location);
+                    pc = memory_location;
+                    break;
+                }
             case 0xe:
+               uint16_t test1 = 2;
                 // printf("come in e");
                 break;
             default:

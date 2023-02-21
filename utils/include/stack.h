@@ -2,6 +2,7 @@
 #define STACK_H
 
 #include <stdbool.h>
+#include <inttypes.h>
 
 typedef uint16_t StackType;
 
