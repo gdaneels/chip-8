@@ -20,7 +20,7 @@ static uint16_t i; // index register, to point at locations in memory
 static uint8_t delay_timer; // decremented at a rate of 60 Hz until it reaches 0
 static uint8_t sound_timer; // gives off a beeping sound as long as it's not 0, 
 		     // decremented at a rate of 60 Hz until it reaches 0
-static uint8_t v[8]; // general-purpose variable registers numbered 0 through F hexadecimal (ie, 0 through 15 in decimal),
+static uint8_t v[16]; // general-purpose variable registers numbered 0 through F hexadecimal (ie, 0 through 15 in decimal),
 		     // called V0 through VF
 		     // VF is also called the flag register
 
@@ -58,6 +58,10 @@ static void add_instruction(void) {
 	LOGI("Added instruction to memory: %x.", instruction);
 }
 
+static inline uint8_t read_nn(uint16_t instr) {
+    return instr & 0x00FF;
+}
+
 static inline uint16_t read_nnn(uint16_t instr) {
     return instr & 0x0FFF;
 }
@@ -80,7 +84,7 @@ void run(void) {
 
     sdl_prepare_scene(image);
     sdl_instr_draw_pixel(image, 50, 50);
-    while(instruction_count < 3) {
+    while(instruction_count < 1) {
         sdl_get_input();
 
         // fetch
@@ -162,6 +166,17 @@ void run(void) {
                     }
                     LOGD("Setting PC from 0x%x (%u) to 0x%x (%u).", pc, pc, memory_location, memory_location);
                     pc = memory_location;
+                    break;
+                }
+            case 6:
+                {
+                    LOGD("Executing 6XNN: set VX register to NN value instruction.");
+                    // get register
+                    uint8_t reg = second_nibble;
+                    // get NN value
+                    uint8_t value = read_nn(instruction);
+                    LOGD("Setting V%u register to value %u.", reg, value);
+                    v[reg] = value;
                     break;
                 }
             case 0xe:
