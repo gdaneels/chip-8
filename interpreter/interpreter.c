@@ -8,6 +8,7 @@
 #include "interpreter.h"
 #include "sdl.h"
 #include "stack.h"
+#include "instruction.h"
 
 #define FIRST_NIBBLE(instr) (((instr) >> 12) & 0x000F)
 #define SECOND_NIBBLE(instr) (((instr) >> 8) & 0x000F)
