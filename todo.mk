@@ -15,14 +15,19 @@
 - [DONE] Make LOG macro's to do better debugging.
 - [DONE] Make dummy programs to call subroutines and return from them
 	- you can do this with printf '\xde\xad\xbe\ef' > deadbeef.ch8
-- Implement instruction 0NNN (do not implement) and 6XNN and 7XNN
+- [DONE] Implement 6XNN instruction.
+- [DONE] Make implementation for instruction_get() function that gives back callback to instruction to execute; 
+- [DONE] Moved all instruction to individual functions in instruction.c.
+- [DONE] Generate debug information:
+	- [DONE] Write PC
+	- [DONE] Write instruction
+	- [DONE] Write out all nibbles (to see that they're read correctly)
+- Implement instruction 0NNN (do not implement) and 7XNN
 - Put built in font, as defines, together with other defines in interpreter.h
-- Generate debug information:
-	- Write PC
-	- Write instruction
-	- Write out all nibbles (to see that they're read correctly)
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
-- Find a system to efficiently parse the correct instruction
+- Find a system to efficiently parse the correct instruction in instruction_get in instruction.c
 - How should the program stop?
+- Make debug function to print out VX registers.
+- Implement ncurses graphics library.
 
