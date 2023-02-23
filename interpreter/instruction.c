@@ -17,6 +17,13 @@ static inline uint16_t read_nnn(uint16_t instr) {
     return instr & 0x0FFF;
 }
 
+static void print_v(InterpreterContext* ctx) {
+    LOGD("*** General-purpose variable register contents: ***");
+    for (uint8_t i = 0; i < sizeof(ctx->v); i++) {
+        LOGD("*** v[%u] = %u", i, ctx->v[i]);
+    }
+}
+
 static void instruction_0NNN(InterpreterContext* ctx, uint16_t instruction) {
     LOGD("Instruction 0NNN not implemented.");
     exit(EXIT_FAILURE);
@@ -45,12 +52,14 @@ static void instruction_2NNN(InterpreterContext* ctx, uint16_t instruction) {
 
 static void instruction_6XNN(InterpreterContext* ctx, uint16_t instruction) {
     LOGD("Executing 6XNN: set VX register to NN value instruction.");
+    print_v(ctx);
     // get register
     uint8_t reg = SECOND_NIBBLE(instruction);
     // get NN value
     uint8_t value = read_nn(instruction);
     LOGD("Setting V%u register to value %u.", reg, value);
     ctx->v[reg] = value;
+    print_v(ctx);
 }
 
 static void instruction_00E0(InterpreterContext* ctx, uint16_t instruction) {

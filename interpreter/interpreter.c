@@ -10,7 +10,7 @@
 #include "stack.h"
 #include "instruction.h"
 
-InterpreterContext interpreter_context;
+InterpreterContext interpreter_context = (InterpreterContext) { 0 };
 
 static void init_builtin_font(void) {
 	const uint8_t font_memory[] = {
