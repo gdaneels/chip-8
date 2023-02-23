@@ -22,12 +22,12 @@
 	- [DONE] Write PC
 	- [DONE] Write instruction
 	- [DONE] Write out all nibbles (to see that they're read correctly)
+- [DONE] Make debug function to print out VX registers.
 - Implement instruction 0NNN (do not implement) and 7XNN
 - Put built in font, as defines, together with other defines in interpreter.h
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
 - Find a system to efficiently parse the correct instruction in instruction_get in instruction.c
 - How should the program stop?
-- Make debug function to print out VX registers.
 - Implement ncurses graphics library.
 
