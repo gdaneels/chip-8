@@ -20,8 +20,12 @@ static inline uint16_t read_nnn(uint16_t instr) {
 static void print_v(InterpreterContext* ctx) {
     LOGD("*** General-purpose variable register contents: ***");
     for (uint8_t i = 0; i < sizeof(ctx->v); i++) {
-        LOGD("*** v[%u] = %u", i, ctx->v[i]);
+        LOGD("*** v[%u] = 0x%x (%u)", i, ctx->v[i], ctx->v[i]);
     }
+}
+
+static void print_i(InterpreterContext* ctx) {
+    LOGD("*** Index register = 0x%x (%u) ***", ctx->i, ctx->i);
 }
 
 static void instruction_0NNN(InterpreterContext* ctx, uint16_t instruction) {
@@ -50,6 +54,51 @@ static void instruction_2NNN(InterpreterContext* ctx, uint16_t instruction) {
     ctx->pc = memory_location;
 }
 
+static void instruction_3XNN(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 3XNN: skip one instruction if value VX equals NN.");
+    // get register
+    uint8_t reg = SECOND_NIBBLE(instruction);
+    // get NN value
+    uint8_t value = read_nn(instruction);
+    // if register and value are equal skip instruction
+    if (ctx->v[reg] == value) {
+        LOGD("Skipping next instruction because V%u (%u) == value %u.", reg, ctx->v[reg], value);
+        ctx->pc += 2;
+    } else {
+        LOGD("Do nothing because V%u (%u) != value %u.", reg, ctx->v[reg], value);
+    }
+}
+
+static void instruction_4XNN(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 4XNN: skip one instruction if value VX is different from NN.");
+    // get register
+    uint8_t reg = SECOND_NIBBLE(instruction);
+    // get NN value
+    uint8_t value = read_nn(instruction);
+    // if register and value are equal skip instruction
+    if (ctx->v[reg] != value) {
+        LOGD("Skipping next instruction because V%u (%u) != value %u.", reg, ctx->v[reg], value);
+        ctx->pc += 2;
+    } else {
+        LOGD("Do nothing because V%u (%u) == value %u.", reg, ctx->v[reg], value);
+    }
+}
+
+static void instruction_5XY0(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 5XY0: skip one instruction if values VX and VY are equal.");
+    // get register x
+    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    // get register y
+    uint8_t reg_y = THIRD_NIBBLE(instruction);
+    // if register and value are equal skip instruction
+    if (ctx->v[reg_x] == ctx->v[reg_y]) {
+        LOGD("Skipping next instruction because V%u (%u) == value V%u (%u).", reg_x, ctx->v[reg_x], reg_y, ctx->v[reg_y]);
+        ctx->pc += 2;
+    } else {
+        LOGD("Do nothing because V%u (%u) != value V%u (%u).", reg_x, ctx->v[reg_x], reg_y, ctx->v[reg_y]);
+    }
+}
+
 static void instruction_6XNN(InterpreterContext* ctx, uint16_t instruction) {
     LOGD("Executing 6XNN: set VX register to NN value instruction.");
     print_v(ctx);
@@ -60,6 +109,41 @@ static void instruction_6XNN(InterpreterContext* ctx, uint16_t instruction) {
     LOGD("Setting V%u register to value %u.", reg, value);
     ctx->v[reg] = value;
     print_v(ctx);
+}
+
+static void instruction_7XNN(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 7XNN: add the value NN to VX register.");
+    print_v(ctx);
+    // get register
+    uint8_t reg = SECOND_NIBBLE(instruction);
+    // get NN value
+    uint8_t value = read_nn(instruction);
+    LOGD("Adding V%u register to value %u.", reg, value);
+    ctx->v[reg] += value;
+    print_v(ctx);
+}
+
+static void instruction_9XY0(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 9XY0: skip one instruction if values VX and VY are different.");
+    // get register x
+    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    // get register y
+    uint8_t reg_y = THIRD_NIBBLE(instruction);
+    // if register and value are equal skip instruction
+    if (ctx->v[reg_x] != ctx->v[reg_y]) {
+        LOGD("Skipping next instruction because V%u (%u) != value V%u (%u).", reg_x, ctx->v[reg_x], reg_y, ctx->v[reg_y]);
+        ctx->pc += 2;
+    } else {
+        LOGD("Do nothing because V%u (%u) == value V%u (%u).", reg_x, ctx->v[reg_x], reg_y, ctx->v[reg_y]);
+    }
+}
+
+static void instruction_ANNN(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing ANNN: set index register I to value NNN.");
+    uint16_t value = read_nnn(instruction);
+    ctx->i = value; 
+    LOGD("Setting index register to value NNN (0x%x, %u).", value, value);
+    print_i(ctx);
 }
 
 static void instruction_00E0(InterpreterContext* ctx, uint16_t instruction) {
@@ -87,55 +171,53 @@ instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code) {
 
     switch (first_nibble) {
         case 0:
-            {
                 switch (second_nibble) {
                     case 0:
-                        {
                             switch (fourth_nibble) {
                                 case 0:
-                                    {
                                         return instruction_00E0;
                                         break;
-                                    }
                                 case 0xe:
-                                    {
                                         return instruction_00EE;
-
                                         break;
-                                    }
                                 default:
-                                    {
                                         break;
-                                    }
                             }
-
                             break;
-                        }
                     default:
-                        {
                             return instruction_0NNN;
                             break;
-                        }
                 }
                 break;
-            }
         case 1:
-            {
                 return instruction_1NNN;
                 break;
-            }
         case 2:
-            {
                 return instruction_2NNN;
                 break;
-            }
+        case 3:
+                return instruction_3XNN;
+                break;
+        case 4:
+                return instruction_4XNN;
+                break;
+        case 5:
+                return instruction_5XY0;
+                break;
         case 6:
-            {
                 return instruction_6XNN;
                 break;
-            }
+        case 7:
+                return instruction_7XNN;
+                break;
+        case 9:
+                return instruction_9XY0;
+                break;
+        case 0xa:
+                return instruction_ANNN;
+                break;
         case 0xe:;
-           uint16_t test1 = 2;
+           //uint16_t test1 = 2;
             // printf("come in e");
             break;
         default:
