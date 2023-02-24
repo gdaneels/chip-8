@@ -30,4 +30,4 @@
 - Find a system to efficiently parse the correct instruction in instruction_get in instruction.c
 - How should the program stop?
 - Implement ncurses graphics library.
-
+- Check what happens if program is given as input that does not exist.
