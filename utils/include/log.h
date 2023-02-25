@@ -18,32 +18,39 @@
     printf("\n"); \
 } while(0)
 
-// error logs
+// ERROR logs
 #if LOG_LEVEL > 0
 #define LOGE(msg, ...) LOG("ERROR", (msg), ##__VA_ARGS__)
 #else
 #define LOGE(msg, ...) do {} while (0)
 #endif
 
-// warning logs
+// WARNING logs
 #if LOG_LEVEL > 1
 #define LOGW(msg, ...) LOG("WARNING", (msg), ##__VA_ARGS__)
 #else
 #define LOGW(msg, ...) do {} while (0)
 #endif
 
-// debug logs
+// info logs
 #if LOG_LEVEL > 2
+#define LOGI(msg, ...) LOG("INFO", (msg), ##__VA_ARGS__)
+#else
+#define LOGI(msg, ...) do {} while (0)
+#endif
+
+// DEBUG logs
+#if LOG_LEVEL > 3
 #define LOGD(msg, ...) LOG("DEBUG", (msg), ##__VA_ARGS__)
 #else
 #define LOGD(msg, ...) do {} while (0)
 #endif
 
-// info logs
-#if LOG_LEVEL > 3
-#define LOGI(msg, ...) LOG("INFO", (msg), ##__VA_ARGS__)
+// VERBOSE logs
+#if LOG_LEVEL > 4
+#define LOGV(msg, ...) LOG("DEBUG", (msg), ##__VA_ARGS__)
 #else
-#define LOGI(msg, ...) do {} while (0)
+#define LOGV(msg, ...) do {} while (0)
 #endif
 
 #endif // LOG_H
