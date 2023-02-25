@@ -10,6 +10,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 add_executable(chip8) 
 target_sources(chip8 PRIVATE main.c)
 
+# set log level
 add_compile_definitions(LOG_LEVEL=4)
 
 add_subdirectory(utils)
