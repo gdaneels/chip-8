@@ -14,7 +14,7 @@
 - [DONE] Get rid of nvim not found warnings/errors
 - [DONE] Make LOG macro's to do better debugging.
 - [DONE] Make dummy programs to call subroutines and return from them
-	- you can do this with printf '\xde\xad\xbe\ef' > deadbeef.ch8
+	- You can do this with printf '\xde\xad\xbe\ef' > deadbeef.ch8
 - [DONE] Implement 6XNN instruction.
 - [DONE] Make implementation for instruction_get() function that gives back callback to instruction to execute; 
 - [DONE] Moved all instruction to individual functions in instruction.c.
@@ -25,6 +25,10 @@
 - [DONE] Make debug function to print out VX registers.
 - [DONE] Implement 3XNN, 4XNN, 5XY0, 9XY0 and ANNN.
 - [DONE] Implement instruction 0NNN (do not implement) and 7XNN
+- [DONE] Add README.md.
+- [DONE] Check what happens if program is given as input that does not exist.
+	- Also cleaned up read.c/read.h.
+- [DONE] Format code and start using formatter.
 - Implement DXYN.
 - Put built in font, as defines, together with other defines in interpreter.h
 - Run cmake differently so the compile_commands.json is always generated at the correct place
@@ -32,4 +36,4 @@
 - Find a system to efficiently parse the correct instruction in instruction_get in instruction.c
 - How should the program stop?
 - Implement ncurses graphics library.
-- Check what happens if program is given as input that does not exist.
+- Put everything in src directory.
