@@ -18,4 +18,4 @@ void sdl_free(Image* image);
 void sdl_instr_clear_screen(Image* image);
 void sdl_instr_draw_pixel(Image* image, int x, int y);
 
-#endif 
+#endif

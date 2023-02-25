@@ -2,9 +2,11 @@
 #define INSTRUCTION_H
 
 #include <stdint.h>
+
 #include "interpreter.h"
 
-typedef enum {
+typedef enum
+{
     OPCODE_0NNN,
     OPCODE_00E0,
     OPCODE_1NNN,
@@ -21,7 +23,7 @@ typedef enum {
 } OPCODE;
 
 typedef void (*instruction_cb)(InterpreterContext*, uint16_t);
-    
+
 instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code);
 
-#endif // INSTRUCTION_H
+#endif  // INSTRUCTION_H
