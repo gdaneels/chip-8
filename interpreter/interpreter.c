@@ -48,7 +48,10 @@ static void add_instruction(void) {
 
 void init(const char* program) {
     // read in program
-	read_program(program, interpreter_context.memory, ADDR_START_PROGRAM);
+	if (!read_program(program, interpreter_context.memory, ADDR_START_PROGRAM)) {
+        LOGE("Failed to read CHIP-8 program.");
+        exit(EXIT_FAILURE);
+    }
     // initialize stack
     stack_init();
     // initialize program counter
@@ -93,7 +96,7 @@ void run(void) {
 
         sdl_present_scene(interpreter_context.image);
         // should be replaced by timer of chip 8?
-		sdl_do_delay(16);
+	    sdl_do_delay(16);
     }
     sdl_free(interpreter_context.image);
 }
