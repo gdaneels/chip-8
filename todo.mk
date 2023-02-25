@@ -23,7 +23,9 @@
 	- [DONE] Write instruction
 	- [DONE] Write out all nibbles (to see that they're read correctly)
 - [DONE] Make debug function to print out VX registers.
-- Implement instruction 0NNN (do not implement) and 7XNN
+- [DONE] Implement 3XNN, 4XNN, 5XY0, 9XY0 and ANNN.
+- [DONE] Implement instruction 0NNN (do not implement) and 7XNN
+- Implement DXYN.
 - Put built in font, as defines, together with other defines in interpreter.h
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
