@@ -228,6 +228,43 @@ static void instruction_00EE(InterpreterContext* ctx, uint16_t instruction)
     ctx->pc = return_pc;
 }
 
+static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
+{
+    // get register x
+    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    // get register y
+    uint8_t reg_y = THIRD_NIBBLE(instruction);
+
+    // get x and y coordinate
+    // module the width & height of the screen to wrap the starting position of the sprite
+    // x coordinate
+    uint8_t x_coord = ctx->v[reg_x] % IMAGE_WIDTH;
+    // y coordinate
+    uint8_t y_coord = ctx->v[reg_y] % IMAGE_HEIGHT;
+
+    // set VF to 0
+    ctx->v[0xF] = 0;
+
+    // get the N rows
+    uint8_t N = FOURTH_NIBBLE(instruction);
+
+    LOGD("Base memory address from register I: 0x%x (%u).", ctx->i, ctx->i);
+    for(uint8_t n = 0; n < N; n++) {
+        // row per row, add to the base memory address saved in register I
+        uint16_t row_sprite_data = ctx->i + n;
+        LOGD("Drawing from memory address: 0x%x (%u).", row_sprite_data, row_sprite_data);
+        for (uint8_t i_x = 0; i_x < 8; i_x++) {
+            for (uint8_t i_y = 0; i_y < 8; i_y++) {
+                LOGD("XOR'ing pixel at: 0x%x (%u).", row_sprite_data, row_sprite_data);
+                // TODO use graphics function
+                // TODO check if you reach end of screen: if so, stop *row*
+            }
+            // TODO check if you reach bottom of screen: if so, stop
+        }
+    }
+
+}
+
 instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code)
 {
     uint8_t first_nibble = FIRST_NIBBLE(instruction);
