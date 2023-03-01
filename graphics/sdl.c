@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "include/sdl.h"
 #include "instruction.h"
+#include "log.h"
 
 struct Image
 {
@@ -102,24 +103,26 @@ void sdl_instr_clear_screen(Image* app)
     SDL_RenderClear(app->renderer);
 }
 
-void sdl_instr_draw_pixel(Image* app, int x, int y)
-{
-    SDL_SetRenderDrawColor(app->renderer, 255, 0, 0, 255);
-    for (uint8_t i = 0; i < 50; ++i)
-        SDL_RenderDrawPoint(app->renderer, i, i);
-    // SDL_RenderDrawPoint(app->renderer, x, y);
-
-    // TODO set screen[x][y]
-}
-
 void sdl_instr_set_pixel(Image* app, int x, int y)
 {
-    return;
+    app->screen[x][y] = 1;
+    if (SDL_SetRenderDrawColor(app->renderer, 255, 0, 0, 255) < 0) {
+        LOGE("Could not set 1 color for pixel at (%d, %d).", x, y);
+    }
+    if (SDL_RenderDrawPoint(app->renderer, x, y) < 0) {
+        LOGE("Could not draw active pixel at (%d, %d).", x, y);
+    }
 }
 
 void sdl_instr_unset_pixel(Image* app, int x, int y)
 {
-    return;
+    app->screen[x][y] = 0;
+    if (SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255) < 0) {
+        LOGE("Could not set 0 color for pixel at (%d, %d).", x, y);
+    }
+    if (SDL_RenderDrawPoint(app->renderer, x, y) < 0) {
+        LOGE("Could not draw inactive pixel at (%d, %d).", x, y);
+    }
 }
 
 uint8_t sdl_instr_get_pixel(Image* app, int x, int y)

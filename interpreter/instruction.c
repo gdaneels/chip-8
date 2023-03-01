@@ -365,6 +365,7 @@ instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code)
         return instruction_DXYN;
         break;
     case 0xF:
+        // redirect to other function to avoid too much nesting
         return instruction_get_F(instruction, op_code);
         break;
     case 0xe:;

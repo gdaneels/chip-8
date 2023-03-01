@@ -86,7 +86,6 @@ void run(void)
     interpreter_context.image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     sdl_prepare_scene(interpreter_context.image);
-    sdl_instr_draw_pixel(interpreter_context.image, 50, 50);
     while (instruction_count < 16) {
         // while(1) {
         sdl_get_input();
