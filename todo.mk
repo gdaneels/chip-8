@@ -29,7 +29,8 @@
 - [DONE] Check what happens if program is given as input that does not exist.
 	- Also cleaned up read.c/read.h.
 - [DONE] Format code and start using formatter.
-- Implement DXYN.
+- [DONE] Implemented FX29 instruction.
+- [work-in-progress] Implement DXYN.
 - Put built in font, as defines, together with other defines in interpreter.h
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
