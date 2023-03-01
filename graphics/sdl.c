@@ -1,15 +1,17 @@
 // For reference, see
 // https://www.parallelrealities.co.uk/tutorials/shooter/shooter1.php
 
-#include "include/sdl.h"
-
 #include <SDL2/SDL.h>
+#include "include/sdl.h"
+#include "instruction.h"
 
 struct Image
 {
     SDL_Renderer* renderer;
     SDL_Window* window;
+    uint8_t screen[IMAGE_WIDTH][IMAGE_HEIGHT];
 };
+
 
 void sdl_get_input(void)
 {
@@ -50,7 +52,8 @@ void sdl_free(Image* app)
 Image* sdl_init(int width, int height)
 {
     // allocate memory for image app
-    Image* app = malloc(sizeof(Image));
+    // make sure to initialize to 0 with calloc
+    Image* app = calloc(1, sizeof(Image));
     if (!app) {
         fprintf(stderr, "Could not allocate memory for image!");
         exit(1);
@@ -105,4 +108,23 @@ void sdl_instr_draw_pixel(Image* app, int x, int y)
     for (uint8_t i = 0; i < 50; ++i)
         SDL_RenderDrawPoint(app->renderer, i, i);
     // SDL_RenderDrawPoint(app->renderer, x, y);
+
+    // TODO set screen[x][y]
+}
+
+void sdl_instr_set_pixel(Image* app, int x, int y)
+{
+    return;
+}
+
+void sdl_instr_unset_pixel(Image* app, int x, int y)
+{
+    return;
+}
+
+uint8_t sdl_instr_get_pixel(Image* app, int x, int y)
+{
+    // there is a function SDL_RenderReadPixels apparently,
+    // but this seems to be a very slow function
+    return app->screen[x][y];
 }

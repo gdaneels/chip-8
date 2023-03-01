@@ -1,6 +1,7 @@
 #include "instruction.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 #include "log.h"
 #include "sdl.h"
@@ -237,12 +238,9 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
 
     // get x and y coordinate
     // module the width & height of the screen to wrap the starting position of the sprite
-    // x coordinate
     uint8_t x_coord = ctx->v[reg_x] % IMAGE_WIDTH;
-    // y coordinate
     uint8_t y_coord = ctx->v[reg_y] % IMAGE_HEIGHT;
 
-    // set VF to 0
     ctx->v[0xF] = 0;
 
     // get the N rows
@@ -256,13 +254,50 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
         for (uint8_t i_x = 0; i_x < 8; i_x++) {
             for (uint8_t i_y = 0; i_y < 8; i_y++) {
                 LOGD("XOR'ing pixel at: 0x%x (%u).", row_sprite_data, row_sprite_data);
-                // TODO use graphics function
+
+                uint8_t screen_pixel = sdl_instr_get_pixel(ctx->image, x_coord, y_coord);
+                uint8_t sprite_pixel = 0; // TODO get pixel from sprite in memory
+
+                if (sprite_pixel) {
+                    if (!screen_pixel) {
+                        // draw
+                        sdl_instr_set_pixel(ctx->image, x_coord, y_coord);
+                    } else {
+                        // undraw pixel
+                        sdl_instr_unset_pixel(ctx->image, x_coord, y_coord);
+                        ctx->v[0xF] = 1;
+                    }
+                }
                 // TODO check if you reach end of screen: if so, stop *row*
             }
             // TODO check if you reach bottom of screen: if so, stop
         }
     }
 
+}
+
+static void instruction_FX29(InterpreterContext* ctx, uint16_t instruction)
+{
+    LOGD("Executing FX29: font character instruction.");
+    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    // character should be stored in 4 first bits of VX register
+    uint8_t character = 0x000F & ctx->v[reg_x];
+    // a character is 5 bytes wide
+    ctx->i = ADDR_BUILTIN_FONT + (5 * character); 
+    LOGD("I register set to address (0x%x, %u) of character 0x%x.", ctx->i, ctx->i, character);
+}
+
+instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
+    assert(FIRST_NIBBLE(instruction) == 0xF);
+    uint8_t last_byte = read_nn(instruction); 
+    switch(last_byte) {
+        case 0x29:
+            return instruction_FX29;
+            break;
+        default:
+            break;
+    }
+    return NULL;
 }
 
 instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code)
@@ -323,8 +358,14 @@ instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code)
     case 9:
         return instruction_9XY0;
         break;
-    case 0xa:
+    case 0xA:
         return instruction_ANNN;
+        break;
+    case 0xD:
+        return instruction_DXYN;
+        break;
+    case 0xF:
+        return instruction_get_F(instruction, op_code);
         break;
     case 0xe:;
         // uint16_t test1 = 2;
