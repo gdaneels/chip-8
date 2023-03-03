@@ -31,6 +31,12 @@
 - [DONE] Format code and start using formatter.
 - [DONE] Implemented FX29 instruction.
 - [work-in-progress] Implement DXYN.
+	- test edge of screen edge cases
+	- try unsetting pixels
+	- revisit where I should apply the image width and height scaling: now logic is in sdl and in interpreter
+		- I would change the pixel drawing to a rectangle drawing
+	- segmentation fault when testing 2 DXYN functions
+	- is BIT macro well implemented?
 - Put built in font, as defines, together with other defines in interpreter.h
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
@@ -38,3 +44,4 @@
 - How should the program stop?
 - Implement ncurses graphics library.
 - Put everything in src directory.
+- Add decent unit test infrastructure.
