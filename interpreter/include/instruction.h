@@ -18,6 +18,7 @@ typedef enum
     OPCODE_9XY0,
     OPCODE_6XNN,
     OPCODE_7XNN,
+    OPCODE_DXYN,
     OPCODE_NULL,
     OPCODE_MAX
 } OPCODE;
@@ -25,5 +26,7 @@ typedef enum
 typedef void (*instruction_cb)(InterpreterContext*, uint16_t);
 
 instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code);
+
+void instruction_test(InterpreterContext* ctx, OPCODE op_code);
 
 #endif  // INSTRUCTION_H

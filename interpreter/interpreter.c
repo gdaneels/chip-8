@@ -63,6 +63,16 @@ static void add_instruction(void)
 void init(const char* program)
 {
     // read in program
+    // initialize stack
+    stack_init();
+    // initialize program counter
+    interpreter_context.pc = ADDR_START_PROGRAM;
+    // initialize graphics window
+    interpreter_context.image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
+    // initialize built in font
+    init_builtin_font();
+
+    // read user program
     if (!read_program(
             program,
             interpreter_context.memory,
@@ -70,10 +80,6 @@ void init(const char* program)
         LOGE("Failed to read CHIP-8 program.");
         exit(EXIT_FAILURE);
     }
-    // initialize stack
-    stack_init();
-    // initialize program counter
-    interpreter_context.pc = ADDR_START_PROGRAM;
 }
 
 void run(void)
@@ -82,8 +88,6 @@ void run(void)
     uint16_t instruction = 0x0;
     instruction_cb instruction_function = NULL;
     // for now, we ignore the timers as they are not clear for me yet
-
-    interpreter_context.image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
 
     sdl_prepare_scene(interpreter_context.image);
     while (instruction_count < 16) {
@@ -119,11 +123,12 @@ void run(void)
 
         // execute
         LOGD("Executing instruction with opcode %u.", opcode);
-        instruction_function(&interpreter_context, instruction);
+        // instruction_function(&interpreter_context, instruction);
+        instruction_test(&interpreter_context, OPCODE_DXYN);
 
         sdl_present_scene(interpreter_context.image);
         // should be replaced by timer of chip 8?
-        sdl_do_delay(16);
+        sdl_do_delay(1000);
     }
     sdl_free(interpreter_context.image);
 }
