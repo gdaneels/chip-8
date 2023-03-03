@@ -9,8 +9,8 @@
 #define IMAGE_WIDTH IMAGE_SCALE_FACTOR * IMAGE_BASE_WIDTH
 #define IMAGE_HEIGHT IMAGE_SCALE_FACTOR * IMAGE_BASE_HEIGHT
 // shouldn't it be lowercase x in 0x50 and 0x200?
-#define ADDR_BUILTIN_FONT 0X50    // memory address should go from 0x50 to 0x9F
-#define ADDR_START_PROGRAM 0X200  // start memory address of chip-8 program
+#define ADDR_BUILTIN_FONT 0x50    // memory address should go from 0x50 to 0x9F
+#define ADDR_START_PROGRAM 0x200  // start memory address of chip-8 program
 
 typedef struct
 {

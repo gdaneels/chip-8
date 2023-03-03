@@ -1,6 +1,7 @@
 // For reference, see
 // https://www.parallelrealities.co.uk/tutorials/shooter/shooter1.php
 
+#include <inttypes.h>
 #include <SDL2/SDL.h>
 #include "include/sdl.h"
 #include "instruction.h"
@@ -105,23 +106,41 @@ void sdl_instr_clear_screen(Image* app)
 
 void sdl_instr_set_pixel(Image* app, int x, int y)
 {
-    app->screen[x][y] = 1;
     if (SDL_SetRenderDrawColor(app->renderer, 255, 0, 0, 255) < 0) {
         LOGE("Could not set 1 color for pixel at (%d, %d).", x, y);
+        exit(EXIT_FAILURE);
     }
-    if (SDL_RenderDrawPoint(app->renderer, x, y) < 0) {
-        LOGE("Could not draw active pixel at (%d, %d).", x, y);
+
+    for (int x_i = 0; x_i < IMAGE_SCALE_FACTOR; x_i++) {
+        int x_tmp = x + x_i;
+        for (int y_i = 0; y_i < IMAGE_SCALE_FACTOR; y_i++) {
+            int y_tmp = y + y_i;
+            if (SDL_RenderDrawPoint(app->renderer, x_tmp, y_tmp) < 0) {
+                LOGE("Could not draw active pixel at (%d, %d).", x_tmp, y_tmp);
+                exit(EXIT_FAILURE);
+            }
+            app->screen[x_tmp][y_tmp] = 1;
+        }
     }
 }
 
 void sdl_instr_unset_pixel(Image* app, int x, int y)
 {
-    app->screen[x][y] = 0;
     if (SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255) < 0) {
         LOGE("Could not set 0 color for pixel at (%d, %d).", x, y);
+        exit(EXIT_FAILURE);
     }
-    if (SDL_RenderDrawPoint(app->renderer, x, y) < 0) {
-        LOGE("Could not draw inactive pixel at (%d, %d).", x, y);
+    
+    for (int x_i = 0; x_i < IMAGE_SCALE_FACTOR; x_i++) {
+        int x_tmp = x + x_i;
+        for (int y_i = 0; y_i < IMAGE_SCALE_FACTOR; y_i++) {
+            int y_tmp = y + y_i;
+            if (SDL_RenderDrawPoint(app->renderer, x_tmp, y_tmp) < 0) {
+                LOGE("Could not draw inactive pixel at (%d, %d).", x_tmp, y_tmp);
+                exit(EXIT_FAILURE);
+            }
+            app->screen[x_tmp][y_tmp] = 0;
+        }
     }
 }
 

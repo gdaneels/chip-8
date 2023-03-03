@@ -240,8 +240,8 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
 
     // get x and y coordinate
     // module the width & height of the screen to wrap the starting position of the sprite
-    uint8_t x_origin = ctx->v[reg_x] % IMAGE_WIDTH;
-    uint8_t y_origin = ctx->v[reg_y] % IMAGE_HEIGHT;
+    uint16_t x_origin = ctx->v[reg_x] % IMAGE_WIDTH;
+    uint16_t y_origin = ctx->v[reg_y] % IMAGE_HEIGHT;
 
     ctx->v[0xF] = 0;
 
@@ -255,9 +255,10 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
         uint8_t data_byte = ctx->memory[sprite_row_loc];
         LOGD("Drawing from memory address: 0x%x (%u) with value %u.", sprite_row_loc, sprite_row_loc, data_byte);
 
-        uint8_t y = y_origin + row;
+        // the scaling should dissappear here in my opinion, let the graphics lib handle this
+        uint16_t y = (y_origin + row) * IMAGE_SCALE_FACTOR;
         for (uint8_t column = 0; column < 8; column++) {
-            uint8_t x = x_origin + column;
+            uint16_t x = (x_origin + column) * IMAGE_SCALE_FACTOR;
             uint8_t screen_pixel = sdl_instr_get_pixel(ctx->image, x, y);
             /* 
              * do 7 - column, as bit 0 is most right bit, while bit 7 is most left bit
@@ -317,13 +318,22 @@ instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
 
 void test_DXYN(InterpreterContext* ctx) {
     // X = 0 (V0), Y = 1 (V1), N = 5 (5 pixels tall font)
-    uint16_t instruction = 0xD015;
+    uint16_t instruction_f = 0xD015;
     // set VX (V0) and VY (V1) registers
     ctx->v[0] = 0; // V0 register, x = 0
     ctx->v[1] = 0; // V1 register, y = 0
-    // set I register to first font character A
+    // set I register to first font character F
     ctx->i = ADDR_BUILTIN_FONT + 5 * 15;
-    instruction_DXYN(ctx, instruction);
+    instruction_DXYN(ctx, instruction_f);
+     
+    // // X = 2 (V2), Y = 3 (V3), N = 5 (5 pixels tall font)
+    // uint16_t instruction_a = 0xD235;
+    // // set VX (V2) and VY (V3) registers
+    // ctx->v[2] = 10; // V2 register, x = 10
+    // ctx->v[3] = 10; // V3 register, y = 10
+    // // set I register to first font character A
+    // ctx->i = ADDR_BUILTIN_FONT + 5 * 10;
+    // instruction_DXYN(ctx, instruction_a);
 }
 
 void instruction_test(InterpreterContext* ctx, OPCODE op_code) {
