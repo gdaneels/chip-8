@@ -31,7 +31,7 @@ void sdl_get_input(void)
 
 void sdl_prepare_scene(Image* app)
 {
-    SDL_SetRenderDrawColor(app->renderer, 96, 128, 255, 255);
+    SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
 }
 
