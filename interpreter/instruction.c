@@ -12,6 +12,8 @@
 #define THIRD_NIBBLE(instr) (((instr) >> 4) & 0x000F)
 #define FOURTH_NIBBLE(instr) ((instr)&0x000F)
 
+#define BIT(byte, x) (((byte) >> (x)) & 0x1)
+
 static inline uint8_t read_nn(uint16_t instr)
 {
     return instr & 0x00FF;
@@ -238,8 +240,8 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
 
     // get x and y coordinate
     // module the width & height of the screen to wrap the starting position of the sprite
-    uint8_t x_coord = ctx->v[reg_x] % IMAGE_WIDTH;
-    uint8_t y_coord = ctx->v[reg_y] % IMAGE_HEIGHT;
+    uint8_t x_origin = ctx->v[reg_x] % IMAGE_WIDTH;
+    uint8_t y_origin = ctx->v[reg_y] % IMAGE_HEIGHT;
 
     ctx->v[0xF] = 0;
 
@@ -247,33 +249,46 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
     uint8_t N = FOURTH_NIBBLE(instruction);
 
     LOGD("Base memory address from register I: 0x%x (%u).", ctx->i, ctx->i);
-    for(uint8_t n = 0; n < N; n++) {
+    for(uint8_t row = 0; row < N; row++) {
         // row per row, add to the base memory address saved in register I
-        uint16_t row_sprite_data = ctx->i + n;
-        LOGD("Drawing from memory address: 0x%x (%u).", row_sprite_data, row_sprite_data);
-        for (uint8_t i_x = 0; i_x < 8; i_x++) {
-            for (uint8_t i_y = 0; i_y < 8; i_y++) {
-                LOGD("XOR'ing pixel at: 0x%x (%u).", row_sprite_data, row_sprite_data);
+        uint16_t sprite_row_loc = ctx->i + row;
+        uint8_t data_byte = ctx->memory[sprite_row_loc];
+        LOGD("Drawing from memory address: 0x%x (%u) with value %u.", sprite_row_loc, sprite_row_loc, data_byte);
 
-                uint8_t screen_pixel = sdl_instr_get_pixel(ctx->image, x_coord, y_coord);
-                uint8_t sprite_pixel = 0; // TODO get pixel from sprite in memory
+        uint8_t y = y_origin + row;
+        for (uint8_t column = 0; column < 8; column++) {
+            uint8_t x = x_origin + column;
+            uint8_t screen_pixel = sdl_instr_get_pixel(ctx->image, x, y);
+            /* 
+             * do 7 - column, as bit 0 is most right bit, while bit 7 is most left bit
+             * left most pixel in sprite byte is at bit 7
+             * right most pixel in sprite byte is at bit 0
+            */
+            uint8_t bit = 7 - column;
+            uint8_t sprite_pixel = BIT(data_byte, bit); // TODO get pixel from sprite in memory
 
-                if (sprite_pixel) {
-                    if (!screen_pixel) {
-                        // draw
-                        sdl_instr_set_pixel(ctx->image, x_coord, y_coord);
-                    } else {
-                        // undraw pixel
-                        sdl_instr_unset_pixel(ctx->image, x_coord, y_coord);
-                        ctx->v[0xF] = 1;
-                    }
+            LOGD("XOR'ing pixel (%u, %u): screen pixel is %u, sprite pixel is %u.", x, y, screen_pixel, sprite_pixel);
+
+            if (sprite_pixel) {
+                if (!screen_pixel) {
+                    // draw
+                    sdl_instr_set_pixel(ctx->image, x, y);
+                } else {
+                    // undraw pixel
+                    sdl_instr_unset_pixel(ctx->image, x, y);
+                    ctx->v[0xF] = 1;
                 }
-                // TODO check if you reach end of screen: if so, stop *row*
             }
-            // TODO check if you reach bottom of screen: if so, stop
+            // reach edge of screen? stop
+            if (x == IMAGE_WIDTH - 1) {
+                break;
+            }
+        }
+        // reach end of screen? stop
+        if (y == IMAGE_HEIGHT - 1) {
+            break;
         }
     }
-
 }
 
 static void instruction_FX29(InterpreterContext* ctx, uint16_t instruction)
@@ -298,6 +313,28 @@ instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
             break;
     }
     return NULL;
+}
+
+void test_DXYN(InterpreterContext* ctx) {
+    // X = 0 (V0), Y = 1 (V1), N = 5 (5 pixels tall font)
+    uint16_t instruction = 0xD015;
+    // set VX (V0) and VY (V1) registers
+    ctx->v[0] = 0; // V0 register, x = 0
+    ctx->v[1] = 0; // V1 register, y = 0
+    // set I register to first font character A
+    ctx->i = ADDR_BUILTIN_FONT + 5 * 15;
+    instruction_DXYN(ctx, instruction);
+}
+
+void instruction_test(InterpreterContext* ctx, OPCODE op_code) {
+    switch(op_code) {
+        case OPCODE_DXYN:
+            LOGD("Testing instruction DXYN.");
+            test_DXYN(ctx);
+            break;
+        default:
+            break;
+    }
 }
 
 instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code)
