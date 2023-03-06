@@ -243,6 +243,8 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
     uint16_t x_origin = ctx->v[reg_x] % IMAGE_WIDTH;
     uint16_t y_origin = ctx->v[reg_y] % IMAGE_HEIGHT;
 
+    LOGD("reg_x (%u) and reg_y (%u) give origin at %u and %u.", reg_x, reg_y, x_origin, y_origin);
+
     ctx->v[0xF] = 0;
 
     // get the N rows
@@ -325,15 +327,15 @@ void test_DXYN(InterpreterContext* ctx) {
     // set I register to first font character F
     ctx->i = ADDR_BUILTIN_FONT + 5 * 15;
     instruction_DXYN(ctx, instruction_f);
-     
-    // // X = 2 (V2), Y = 3 (V3), N = 5 (5 pixels tall font)
-    // uint16_t instruction_a = 0xD235;
-    // // set VX (V2) and VY (V3) registers
-    // ctx->v[2] = 10; // V2 register, x = 10
-    // ctx->v[3] = 10; // V3 register, y = 10
-    // // set I register to first font character A
-    // ctx->i = ADDR_BUILTIN_FONT + 5 * 10;
-    // instruction_DXYN(ctx, instruction_a);
+    LOGD("Executing second cmd.");
+    // X = 2 (V2), Y = 3 (V3), N = 5 (5 pixels tall font)
+    uint16_t instruction_a = 0xD235;
+    // set VX (V2) and VY (V3) registers
+    ctx->v[2] = 10; // V2 register, x = 10
+    ctx->v[3] = 10; // V3 register, y = 10
+    // set I register to first font character A
+    ctx->i = ADDR_BUILTIN_FONT + 5 * 10;
+    instruction_DXYN(ctx, instruction_a);
 }
 
 void instruction_test(InterpreterContext* ctx, OPCODE op_code) {
