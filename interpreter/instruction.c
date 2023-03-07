@@ -7,12 +7,28 @@
 #include "sdl.h"
 #include "stack.h"
 
-#define FIRST_NIBBLE(instr) (((instr) >> 12) & 0x000F)
-#define SECOND_NIBBLE(instr) (((instr) >> 8) & 0x000F)
-#define THIRD_NIBBLE(instr) (((instr) >> 4) & 0x000F)
-#define FOURTH_NIBBLE(instr) ((instr)&0x000F)
+// #define first_nibble(instr) (((instr) >> 12) & 0x000F)
+// #define second_nibble(instr) (((instr) >> 8) & 0x000F)
+// #define third_nibble(instr) (((instr) >> 4) & 0x000F)
+// #define fourth_nibble(instr) ((instr)&0x000F)
 
 #define BIT(byte, x) (((byte) >> (x)) & 0x1)
+
+static inline uint8_t first_nibble(uint16_t instruction) {
+    return (instruction >> 12) & 0x000F;
+}
+
+static inline uint8_t second_nibble(uint16_t instruction) {
+    return (instruction >> 8) & 0x000F;
+}
+
+static inline uint8_t third_nibble(uint16_t instruction) {
+    return (instruction >> 4) & 0x000F;
+}
+
+static inline uint8_t fourth_nibble(uint16_t instruction) {
+    return instruction & 0x000F;
+}
 
 static inline uint8_t read_nn(uint16_t instr)
 {
@@ -80,7 +96,7 @@ static void instruction_3XNN(InterpreterContext* ctx, uint16_t instruction)
 {
     LOGD("Executing 3XNN: skip one instruction if value VX equals NN.");
     // get register
-    uint8_t reg = SECOND_NIBBLE(instruction);
+    uint8_t reg = second_nibble(instruction);
     // get NN value
     uint8_t value = read_nn(instruction);
     // if register and value are equal skip instruction
@@ -105,7 +121,7 @@ static void instruction_4XNN(InterpreterContext* ctx, uint16_t instruction)
     LOGD(
         "Executing 4XNN: skip one instruction if value VX is different from NN.");
     // get register
-    uint8_t reg = SECOND_NIBBLE(instruction);
+    uint8_t reg = second_nibble(instruction);
     // get NN value
     uint8_t value = read_nn(instruction);
     // if register and value are equal skip instruction
@@ -129,9 +145,9 @@ static void instruction_5XY0(InterpreterContext* ctx, uint16_t instruction)
 {
     LOGD("Executing 5XY0: skip one instruction if values VX and VY are equal.");
     // get register x
-    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    uint8_t reg_x = second_nibble(instruction);
     // get register y
-    uint8_t reg_y = THIRD_NIBBLE(instruction);
+    uint8_t reg_y = third_nibble(instruction);
     // if register and value are equal skip instruction
     if (ctx->v[reg_x] == ctx->v[reg_y]) {
         LOGD(
@@ -156,7 +172,7 @@ static void instruction_6XNN(InterpreterContext* ctx, uint16_t instruction)
     LOGD("Executing 6XNN: set VX register to NN value instruction.");
     print_v(ctx);
     // get register
-    uint8_t reg = SECOND_NIBBLE(instruction);
+    uint8_t reg = second_nibble(instruction);
     // get NN value
     uint8_t value = read_nn(instruction);
     LOGD("Setting V%u register to value %u.", reg, value);
@@ -169,7 +185,7 @@ static void instruction_7XNN(InterpreterContext* ctx, uint16_t instruction)
     LOGD("Executing 7XNN: add the value NN to VX register.");
     print_v(ctx);
     // get register
-    uint8_t reg = SECOND_NIBBLE(instruction);
+    uint8_t reg = second_nibble(instruction);
     // get NN value
     uint8_t value = read_nn(instruction);
     LOGD("Adding V%u register to value %u.", reg, value);
@@ -182,9 +198,9 @@ static void instruction_9XY0(InterpreterContext* ctx, uint16_t instruction)
     LOGD("Executing 9XY0: skip one instruction if values VX and VY are "
          "different.");
     // get register x
-    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    uint8_t reg_x = second_nibble(instruction);
     // get register y
-    uint8_t reg_y = THIRD_NIBBLE(instruction);
+    uint8_t reg_y = third_nibble(instruction);
     // if register and value are equal skip instruction
     if (ctx->v[reg_x] != ctx->v[reg_y]) {
         LOGD(
@@ -234,9 +250,9 @@ static void instruction_00EE(InterpreterContext* ctx, uint16_t instruction)
 static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
 {
     // get register x
-    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    uint8_t reg_x = second_nibble(instruction);
     // get register y
-    uint8_t reg_y = THIRD_NIBBLE(instruction);
+    uint8_t reg_y = third_nibble(instruction);
 
     // get x and y coordinate
     // module the width & height of the screen to wrap the starting position of the sprite
@@ -248,7 +264,7 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
     ctx->v[0xF] = 0;
 
     // get the N rows
-    uint8_t N = FOURTH_NIBBLE(instruction);
+    uint8_t N = fourth_nibble(instruction);
 
     LOGD("Base memory address from register I: 0x%x (%u).", ctx->i, ctx->i);
     for(uint8_t row = 0; row < N; row++) {
@@ -297,7 +313,7 @@ static void instruction_DXYN(InterpreterContext* ctx, uint16_t instruction)
 static void instruction_FX29(InterpreterContext* ctx, uint16_t instruction)
 {
     LOGD("Executing FX29: font character instruction.");
-    uint8_t reg_x = SECOND_NIBBLE(instruction);
+    uint8_t reg_x = second_nibble(instruction);
     // character should be stored in 4 first bits of VX register
     uint8_t character = 0x000F & ctx->v[reg_x];
     // a character is 5 bytes wide
@@ -306,7 +322,7 @@ static void instruction_FX29(InterpreterContext* ctx, uint16_t instruction)
 }
 
 instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
-    assert(FIRST_NIBBLE(instruction) == 0xF);
+    assert(first_nibble(instruction) == 0xF);
     uint8_t last_byte = read_nn(instruction); 
     switch(last_byte) {
         case 0x29:
@@ -351,23 +367,23 @@ void instruction_test(InterpreterContext* ctx, OPCODE op_code) {
 
 instruction_cb instruction_get(uint16_t instruction, OPCODE* op_code)
 {
-    uint8_t first_nibble = FIRST_NIBBLE(instruction);
-    uint8_t second_nibble = SECOND_NIBBLE(instruction);
-    uint8_t third_nibble = THIRD_NIBBLE(instruction);
-    uint8_t fourth_nibble = FOURTH_NIBBLE(instruction);
+    uint8_t val_first_nibble = first_nibble(instruction);
+    uint8_t val_second_nibble = second_nibble(instruction);
+    uint8_t val_third_nibble = third_nibble(instruction);
+    uint8_t val_fourth_nibble = fourth_nibble(instruction);
     LOGD(
         "Instruction: 0x%x. Nibbles: %x, %x, %x and %x.",
         instruction,
-        first_nibble,
-        second_nibble,
-        third_nibble,
-        fourth_nibble);
+        val_first_nibble,
+        val_second_nibble,
+        val_third_nibble,
+        val_fourth_nibble);
 
-    switch (first_nibble) {
+    switch (val_first_nibble) {
     case 0:
-        switch (second_nibble) {
+        switch (val_second_nibble) {
         case 0:
-            switch (fourth_nibble) {
+            switch (val_fourth_nibble) {
             case 0:
                 return instruction_00E0;
                 break;

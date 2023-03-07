@@ -37,6 +37,7 @@
 		- I would change the pixel drawing to a rectangle drawing
 	- segmentation fault when testing 2 DXYN functions
 	- is BIT macro well implemented?
+- [DONE] Refactor all NIBBLE macro's to inline functions
 - Put built in font, as defines, together with other defines in interpreter.h
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
