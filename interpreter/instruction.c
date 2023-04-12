@@ -321,12 +321,44 @@ static void instruction_FX29(InterpreterContext* ctx, uint16_t instruction)
     LOGD("I register set to address (0x%x, %u) of character 0x%x.", ctx->i, ctx->i, character);
 }
 
+static void instruction_FX55(InterpreterContext* ctx, uint16_t instruction)
+{
+    LOGD("Executing FX55: store memory.");
+    uint8_t x = second_nibble(instruction); 
+    for (uint8_t v_reg_i = 0; v_reg_i <= x; v_reg_i++) {
+        uint16_t addr = ctx->i + v_reg_i;
+        ctx->memory[addr] = ctx->v[v_reg_i];
+        LOGD("Storing variable register V%u (value %u) to memory address (0x%x, %u).", v_reg_i, ctx->v[v_reg_i], addr, addr);
+        // TODO test!
+        // + check if this is the modern version
+    }
+}
+
+static void instruction_FX65(InterpreterContext* ctx, uint16_t instruction)
+{
+    LOGD("Executing FX65: load memory.");
+    uint8_t x = second_nibble(instruction); 
+    for (uint8_t v_reg_i = 0; v_reg_i <= x; v_reg_i++) {
+        uint16_t addr = ctx->i + v_reg_i;
+        ctx->v[v_reg_i] = ctx->memory[addr];
+        LOGD("Loading value at memory (0x%x, %u) in variable register V%u (value %u).", addr, addr, v_reg_i, ctx->v[v_reg_i]);
+        // TODO test!
+        // + check if this is the modern version
+    }
+}
+
 instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
     assert(first_nibble(instruction) == 0xF);
     uint8_t last_byte = read_nn(instruction); 
     switch(last_byte) {
         case 0x29:
             return instruction_FX29;
+            break;
+        case 0x55:
+            return instruction_FX55;
+            break;
+        case 0x65:
+            return instruction_FX65;
             break;
         default:
             break;

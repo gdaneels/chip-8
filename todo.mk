@@ -38,7 +38,9 @@
 	- segmentation fault when testing 2 DXYN functions
 	- is BIT macro well implemented?
 - [DONE] Refactor all NIBBLE macro's to inline functions
-- Put built in font, as defines, together with other defines in interpreter.h
+- [work-in-progress] Implement FX55 and FX65.
+	- Implement.
+	- Test.
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
 - Find a system to efficiently parse the correct instruction in instruction_get in instruction.c
