@@ -1,5 +1,4 @@
 #include "instruction.h"
-
 #include <stdlib.h>
 #include <assert.h>
 
@@ -193,6 +192,27 @@ static void instruction_7XNN(InterpreterContext* ctx, uint16_t instruction)
     print_v(ctx);
 }
 
+static void instruction_8XY0(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY0: VX register is set to value of VY.");
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    ctx->v[reg_x] = ctx->v[reg_y];
+    // TODO test this instruction
+}
+
+static void instruction_8XY1(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY1: VX register is set to bitwise OR of VX and VY");
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    // TODO implement bitwise OR
+    ctx->v[reg_x] = ctx->v[reg_y];
+    // TODO test this instruction
+}
+
 static void instruction_9XY0(InterpreterContext* ctx, uint16_t instruction)
 {
     LOGD("Executing 9XY0: skip one instruction if values VX and VY are "
@@ -360,6 +380,43 @@ instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
         case 0x65:
             return instruction_FX65;
             break;
+        default:
+            break;
+    }
+    return NULL;
+}
+
+instruction_cb instruction_get_8(uint16_t instruction, OPCODE* op_code) {
+    assert(first_nibble(instruction) == 0x8);
+    uint8_t last_byte = read_nn(instruction); 
+    switch(last_byte) {
+        case 0x0:
+            return instruction_8XY0;
+            break;
+        // case 0x1:
+        //     return instruction_8XY1;
+        //     break;
+        // case 0x2:
+        //     return instruction_8XY2;
+        //     break;
+        // case 0x3:
+        //     return instruction_8XY3;
+        //     break;
+        // case 0x4:
+        //     return instruction_8XY4;
+        //     break;
+        // case 0x5:
+        //     return instruction_8XY4;
+        //     break;
+        // case 0x6:
+        //     return instruction_8XY6;
+        //     break;
+        // case 0x7:
+        //     return instruction_8XY7;
+        //     break;
+        // case 0xE:
+        //     return instruction_8XYE;
+        //     break;
         default:
             break;
     }

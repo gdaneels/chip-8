@@ -41,6 +41,9 @@
 - [work-in-progress] Implement FX55 and FX65.
 	- Implement.
 	- Test.
+- [work-in-progress] Implement 8XY0 and 8XY1.
+	- Implement 8XY1.
+	- Test 8XY0 and 8XY1.
 - Run cmake differently so the compile_commands.json is always generated at the correct place
 	- I need to revise my cmake command
 - Find a system to efficiently parse the correct instruction in instruction_get in instruction.c

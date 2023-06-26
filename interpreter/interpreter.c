@@ -123,7 +123,7 @@ void run(void)
 
         // execute
         LOGD("Executing instruction with opcode %u.", opcode);
-        // instruction_function(&interpreter_context, instruction);
+        instruction_function(&interpreter_context, instruction);
         instruction_test(&interpreter_context, OPCODE_DXYN);
 
         sdl_present_scene(interpreter_context.image);
