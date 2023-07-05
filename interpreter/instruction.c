@@ -343,27 +343,29 @@ static void instruction_FX29(InterpreterContext* ctx, uint16_t instruction)
 
 static void instruction_FX55(InterpreterContext* ctx, uint16_t instruction)
 {
-    LOGD("Executing FX55: store memory.");
+    LOGD("Executing FX55 (0x%x): store memory.", instruction);
     uint8_t x = second_nibble(instruction); 
+
+    assert(x <= MAX_V_REG);
+
     for (uint8_t v_reg_i = 0; v_reg_i <= x; v_reg_i++) {
         uint16_t addr = ctx->i + v_reg_i;
         ctx->memory[addr] = ctx->v[v_reg_i];
         LOGD("Storing variable register V%u (value %u) to memory address (0x%x, %u).", v_reg_i, ctx->v[v_reg_i], addr, addr);
-        // TODO test!
-        // + check if this is the modern version
     }
 }
 
 static void instruction_FX65(InterpreterContext* ctx, uint16_t instruction)
 {
-    LOGD("Executing FX65: load memory.");
+    LOGD("Executing FX65 (0x%x): load memory.", instruction);
     uint8_t x = second_nibble(instruction); 
+
+    assert(x <= MAX_V_REG);
+
     for (uint8_t v_reg_i = 0; v_reg_i <= x; v_reg_i++) {
         uint16_t addr = ctx->i + v_reg_i;
         ctx->v[v_reg_i] = ctx->memory[addr];
-        LOGD("Loading value at memory (0x%x, %u) in variable register V%u (value %u).", addr, addr, v_reg_i, ctx->v[v_reg_i]);
-        // TODO test!
-        // + check if this is the modern version
+        LOGD("Loading value (%u) at memory (0x%x, %u) in variable register V%u.", ctx->memory[v_reg_i], addr, addr, v_reg_i);
     }
 }
 
@@ -443,11 +445,45 @@ void test_DXYN(InterpreterContext* ctx) {
     instruction_DXYN(ctx, instruction_a);
 }
 
+void test_FX55(InterpreterContext* ctx) {
+    ctx->v[0] = 20; // V2 register, x = 10
+    ctx->v[1] = 30; // V3 register, y = 10
+    ctx->v[2] = 4; // V2 register, x = 10
+    ctx->v[3] = 10; // V3 register, y = 10
+    uint16_t instruction_f = 0xF255;
+    instruction_FX55(ctx, instruction_f);
+}
+
+void test_FX65(InterpreterContext* ctx) {
+    ctx->v[0] = 20; // V2 register, x = 10
+    ctx->v[1] = 30; // V3 register, y = 10
+    ctx->v[2] = 4; // V2 register, x = 10
+    ctx->v[3] = 10; // V3 register, y = 10
+    print_v(ctx);
+    uint16_t instruction_f = 0xF255;
+    instruction_FX55(ctx, instruction_f);
+    ctx->v[0] = 1; // V2 register, x = 10
+    ctx->v[1] = 2; // V3 register, y = 10
+    ctx->v[2] = 3; // V2 register, x = 10
+    ctx->v[3] = 4; // V3 register, y = 10
+    uint16_t instruction_f2 = 0xF165;
+    instruction_FX65(ctx, instruction_f2);
+    print_v(ctx);
+}
+
 void instruction_test(InterpreterContext* ctx, OPCODE op_code) {
     switch(op_code) {
         case OPCODE_DXYN:
             LOGD("Testing instruction DXYN.");
             test_DXYN(ctx);
+            break;
+        case OPCODE_FX55:
+            LOGD("Testing instruction FX55.");
+            test_FX55(ctx);
+            break;
+        case OPCODE_FX65:
+            LOGD("Testing instruction FX65.");
+            test_FX65(ctx);
             break;
         default:
             break;

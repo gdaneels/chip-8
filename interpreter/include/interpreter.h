@@ -3,6 +3,8 @@
 
 #include "sdl.h"
 
+#define MAX_V_REG 15
+
 #define IMAGE_SCALE_FACTOR 1
 #define IMAGE_BASE_WIDTH 64
 #define IMAGE_BASE_HEIGHT 32

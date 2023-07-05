@@ -90,7 +90,7 @@ void run(void)
     // for now, we ignore the timers as they are not clear for me yet
 
     sdl_prepare_scene(interpreter_context.image);
-    while (instruction_count < 16) {
+    while (instruction_count < 2) {
         // while(1) {
         sdl_get_input();
 
@@ -123,8 +123,8 @@ void run(void)
 
         // execute
         LOGD("Executing instruction with opcode %u.", opcode);
-        instruction_function(&interpreter_context, instruction);
-        instruction_test(&interpreter_context, OPCODE_DXYN);
+        // instruction_function(&interpreter_context, instruction);
+        instruction_test(&interpreter_context, OPCODE_FX65);
 
         sdl_present_scene(interpreter_context.image);
         // should be replaced by timer of chip 8?

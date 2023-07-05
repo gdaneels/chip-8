@@ -19,6 +19,8 @@ typedef enum
     OPCODE_6XNN,
     OPCODE_7XNN,
     OPCODE_DXYN,
+    OPCODE_FX55,
+    OPCODE_FX65,
     OPCODE_NULL,
     OPCODE_MAX
 } OPCODE;

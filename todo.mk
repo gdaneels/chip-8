@@ -38,9 +38,7 @@
 	- segmentation fault when testing 2 DXYN functions
 	- is BIT macro well implemented?
 - [DONE] Refactor all NIBBLE macro's to inline functions
-- [work-in-progress] Implement FX55 and FX65.
-	- Implement.
-	- Test.
+- [DONE] Implement FX55 and FX65.
 - [work-in-progress] Implement 8XY0 and 8XY1.
 	- Implement 8XY1.
 	- Test 8XY0 and 8XY1.
