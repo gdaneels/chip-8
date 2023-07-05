@@ -6,6 +6,8 @@
 #include "sdl.h"
 #include "stack.h"
 
+#define FLAG_REGISTER 15
+
 // #define first_nibble(instr) (((instr) >> 12) & 0x000F)
 // #define second_nibble(instr) (((instr) >> 8) & 0x000F)
 // #define third_nibble(instr) (((instr) >> 4) & 0x000F)
@@ -193,7 +195,7 @@ static void instruction_7XNN(InterpreterContext* ctx, uint16_t instruction)
 }
 
 static void instruction_8XY0(InterpreterContext* ctx, uint16_t instruction) {
-    LOGD("Executing 8XY0: VX register is set to value of VY.");
+    LOGD("Executing 8XY0 (0x%x): VX register is set to value of VY.", instruction);
     // get register x
     uint8_t reg_x = second_nibble(instruction);
     // get register y
@@ -203,20 +205,108 @@ static void instruction_8XY0(InterpreterContext* ctx, uint16_t instruction) {
 }
 
 static void instruction_8XY1(InterpreterContext* ctx, uint16_t instruction) {
-    LOGD("Executing 8XY1: VX register is set to bitwise OR of VX and VY");
+    LOGD("Executing 8XY1 (0x%x): VX register is set to bitwise OR of VX and VY", instruction);
     // get register x
     uint8_t reg_x = second_nibble(instruction);
     // get register y
     uint8_t reg_y = third_nibble(instruction);
-    // TODO implement bitwise OR
-    ctx->v[reg_x] = ctx->v[reg_y];
+    ctx->v[reg_x] |= ctx->v[reg_y];
+    // TODO test this instruction
+}
+
+static void instruction_8XY2(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY2 (0x%x): VX register is set to bitwise AND of VX and VY", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    ctx->v[reg_x] &= ctx->v[reg_y];
+    // TODO test this instruction
+}
+
+static void instruction_8XY3(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY3 (0x%x): VX register is set to bitwise XOR of VX and VY", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    ctx->v[reg_x] ^= ctx->v[reg_y];
+    // TODO test this instruction
+}
+
+static void instruction_8XY4(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY4 (0x%x): VX register is set to sum of VX and VY", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    uint8_t orig_vx = ctx->v[reg_x];
+    ctx->v[reg_x] += ctx->v[reg_y];
+    if (orig_vx > ctx->v[reg_x]) {
+        // overflow happened
+        ctx->v[FLAG_REGISTER] = 1;
+    } else {
+        ctx->v[FLAG_REGISTER] = 0;
+    }
+    // TODO test this instruction
+}
+
+static void instruction_8XY5(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY5 (0x%x): VX register is set to VX - VY", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    ctx->v[reg_x] -= ctx->v[reg_y];
+    if (ctx->v[reg_x] > ctx->v[reg_y]) {
+        // set carry flag following chip 8 rules
+        ctx->v[FLAG_REGISTER] = 1;
+    } else {
+        ctx->v[FLAG_REGISTER] = 0;
+    }
+    // TODO test this instruction
+}
+
+static void instruction_8XY7(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY7 (0x%x): VX register is set to VY - VX", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    ctx->v[reg_x] = ctx->v[reg_y] - ctx->v[reg_x];
+    if (ctx->v[reg_y] > ctx->v[reg_x]) {
+        // set carry flag following chip 8 rules
+        ctx->v[FLAG_REGISTER] = 1;
+    } else {
+        ctx->v[FLAG_REGISTER] = 0;
+    }
+    // TODO test this instruction
+}
+
+static void instruction_8XY6(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XY6 (0x%x): shift right", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    // implement instruction
+    // TODO test this instruction
+}
+
+static void instruction_8XYE(InterpreterContext* ctx, uint16_t instruction) {
+    LOGD("Executing 8XYE (0x%x): shift left", instruction);
+    // get register x
+    uint8_t reg_x = second_nibble(instruction);
+    // get register y
+    uint8_t reg_y = third_nibble(instruction);
+    // implement instruction
     // TODO test this instruction
 }
 
 static void instruction_9XY0(InterpreterContext* ctx, uint16_t instruction)
 {
-    LOGD("Executing 9XY0: skip one instruction if values VX and VY are "
-         "different.");
+    LOGD("Executing 9XY0 (0x%x): skip one instruction if values VX and VY are "
+         "different.", instruction);
     // get register x
     uint8_t reg_x = second_nibble(instruction);
     // get register y
@@ -395,30 +485,30 @@ instruction_cb instruction_get_8(uint16_t instruction, OPCODE* op_code) {
         case 0x0:
             return instruction_8XY0;
             break;
-        // case 0x1:
-        //     return instruction_8XY1;
-        //     break;
-        // case 0x2:
-        //     return instruction_8XY2;
-        //     break;
-        // case 0x3:
-        //     return instruction_8XY3;
-        //     break;
-        // case 0x4:
-        //     return instruction_8XY4;
-        //     break;
-        // case 0x5:
-        //     return instruction_8XY4;
-        //     break;
-        // case 0x6:
-        //     return instruction_8XY6;
-        //     break;
-        // case 0x7:
-        //     return instruction_8XY7;
-        //     break;
-        // case 0xE:
-        //     return instruction_8XYE;
-        //     break;
+        case 0x1:
+            return instruction_8XY1;
+            break;
+        case 0x2:
+            return instruction_8XY2;
+            break;
+        case 0x3:
+            return instruction_8XY3;
+            break;
+        case 0x4:
+            return instruction_8XY4;
+            break;
+        case 0x5:
+            return instruction_8XY4;
+            break;
+        case 0x6:
+            return instruction_8XY6;
+            break;
+        case 0x7:
+            return instruction_8XY7;
+            break;
+        case 0xE:
+            return instruction_8XYE;
+            break;
         default:
             break;
     }
