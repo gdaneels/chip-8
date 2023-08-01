@@ -72,7 +72,7 @@ static void instruction_1NNN(InterpreterContext* ctx, uint16_t instruction)
         memory_location,
         memory_location);
     // TODO enable again
-    // pc = memory_location;
+    ctx->pc = memory_location;
     LOGD("Executing 1NNN");
 }
 
