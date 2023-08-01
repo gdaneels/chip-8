@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <inttypes.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "interpreter.h"
 #include "log.h"
@@ -17,7 +18,11 @@ int main(int argc, char* argv[])
     }
 
     const char* program = argv[1];
-    init(program);
+    bool read_only = false;
+    if (argc == 3) {
+        read_only = argv[2]; 
+    }
+    init(program, read_only);
     run();
     return 0;
 }

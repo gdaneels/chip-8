@@ -2,10 +2,11 @@
 #define INTERPRETER_H
 
 #include "sdl.h"
+#include <stdbool.h>
 
 #define MAX_V_REG 15
 
-#define IMAGE_SCALE_FACTOR 1
+#define IMAGE_SCALE_FACTOR 5
 #define IMAGE_BASE_WIDTH 64
 #define IMAGE_BASE_HEIGHT 32
 #define IMAGE_WIDTH (IMAGE_SCALE_FACTOR * IMAGE_BASE_WIDTH)
@@ -26,9 +27,11 @@ typedef struct
                     // hexadecimal (ie, 0 through 15 in decimal), called V0
                     // through VF VF is also called the flag register
     Image* image;
+    bool read_only; // special debug feature that allows to only read instruction,
+                    // and no execution happens
 } InterpreterContext;
 
-void init(const char* program);
+void init(const char* program, bool read_only);
 void run(void);
 
 #endif

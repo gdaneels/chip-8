@@ -60,15 +60,19 @@ static void add_instruction(void)
     LOGI("Added instruction to memory: %x.", instruction);
 }
 
-void init(const char* program)
+void init(const char* program, bool read_only)
 {
     // read in program
     // initialize stack
     stack_init();
+    // initialize read only option with user input
+    interpreter_context.read_only = read_only;
     // initialize program counter
     interpreter_context.pc = ADDR_START_PROGRAM;
     // initialize graphics window
-    interpreter_context.image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
+    if (!interpreter_context.read_only) {
+        interpreter_context.image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
+    }
     // initialize built in font
     init_builtin_font();
 
@@ -80,6 +84,10 @@ void init(const char* program)
         LOGE("Failed to read CHIP-8 program.");
         exit(EXIT_FAILURE);
     }
+    
+    if (read_only) {
+        LOGD("Read-only mode activated.");
+    }
 }
 
 void run(void)
@@ -89,10 +97,14 @@ void run(void)
     instruction_cb instruction_function = NULL;
     // for now, we ignore the timers as they are not clear for me yet
 
-    sdl_prepare_scene(interpreter_context.image);
-    while (instruction_count < 2) {
-        // while(1) {
-        sdl_get_input();
+    if (!interpreter_context.read_only) {
+        sdl_prepare_scene(interpreter_context.image);
+    }
+    //while (instruction_count < 2) {
+    while(1) {
+        if (!interpreter_context.read_only) {
+            sdl_get_input();
+        }
 
         // fetch
         instruction = (interpreter_context.memory[interpreter_context.pc] << 8)
@@ -116,19 +128,24 @@ void run(void)
         if (instruction_function == NULL) {
             // could not identify instruction, exit
             LOGE(
-                "Unable to fetch instruction callback for instruction %u.",
-                instruction);
+                "Unable to fetch instruction callback for instruction %u (%x)",
+                instruction, instruction);
             exit(EXIT_FAILURE);
+        }
+
+        if (interpreter_context.read_only) {
+            LOGD("%u", opcode);
+            continue;
         }
 
         // execute
         LOGD("Executing instruction with opcode %u.", opcode);
-        // instruction_function(&interpreter_context, instruction);
-        instruction_test(&interpreter_context, OPCODE_FX65);
+        instruction_function(&interpreter_context, instruction);
+        // instruction_test(&interpreter_context, OPCODE_FX65);
 
         sdl_present_scene(interpreter_context.image);
         // should be replaced by timer of chip 8?
-        sdl_do_delay(1000);
+        sdl_do_delay(200);
     }
     sdl_free(interpreter_context.image);
 }
