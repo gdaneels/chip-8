@@ -459,6 +459,27 @@ static void instruction_FX65(InterpreterContext* ctx, uint16_t instruction)
     }
 }
 
+static void instruction_FX07(InterpreterContext* ctx, uint16_t instruction)
+{
+    LOGD("Executing FX07 (0x%x): sets VX to current value of delay timer.", instruction);
+    uint8_t reg_x = second_nibble(instruction); 
+    ctx->v[reg_x] = ctx->delay_timer;
+}
+
+static void instruction_FX15(InterpreterContext* ctx, uint16_t instruction)
+{
+    LOGD("Executing FX15 (0x%x): sets delay timer to value in VX.", instruction);
+    uint8_t reg_x = second_nibble(instruction); 
+    ctx->delay_timer = ctx->v[reg_x];
+}
+
+static void instruction_FX18(InterpreterContext* ctx, uint16_t instruction)
+{
+    LOGD("Executing FX18 (0x%x): sets sound timer to value in VX.", instruction);
+    uint8_t reg_x = second_nibble(instruction); 
+    ctx->sound_timer = ctx->v[reg_x];
+}
+
 instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
     assert(first_nibble(instruction) == 0xF);
     uint8_t last_byte = read_nn(instruction); 
@@ -471,6 +492,15 @@ instruction_cb instruction_get_F(uint16_t instruction, OPCODE* op_code) {
             break;
         case 0x65:
             return instruction_FX65;
+            break;
+        case 0x07:
+            return instruction_FX07;
+            break;
+        case 0x15:
+            return instruction_FX15;
+            break;
+        case 0x18:
+            return instruction_FX18;
             break;
         default:
             break;
