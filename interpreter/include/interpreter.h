@@ -17,6 +17,7 @@
 typedef struct
 {
     uint8_t memory[4096];
+    uint16_t instruction_count;
     uint16_t
         pc;      // program counter, points at the current instruction in memory
     uint16_t i;  // index register, to point at locations in memory

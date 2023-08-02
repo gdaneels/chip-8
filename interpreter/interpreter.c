@@ -67,6 +67,8 @@ void init(const char* program, bool read_only)
     stack_init();
     // initialize read only option with user input
     interpreter_context.read_only = read_only;
+    // initialize instruction count to 0
+    interpreter_context.instruction_count = 0;
     // initialize program counter
     interpreter_context.pc = ADDR_START_PROGRAM;
     // initialize graphics window
@@ -89,12 +91,44 @@ void init(const char* program, bool read_only)
         LOGD("Read-only mode activated.");
     }
 }
+static uint16_t fetch(InterpreterContext* ctx) {
+        return (ctx->memory[ctx->pc] << 8) | ctx->memory[ctx->pc + 1];
+}
+
+static void increment_pc(InterpreterContext* ctx) {
+        ctx->instruction_count++;
+        LOGD("***********************************");
+        uint16_t next_pc = ctx->pc + 2;
+        LOGD(
+            "Current PC = %u (0x%x) (instruction #%u), incrementing to %u (0x%x).",
+            ctx->pc,
+            ctx->pc,
+            ctx->instruction_count,
+            next_pc,
+            next_pc);
+        // increment the PC immediately by 2
+        ctx->pc = next_pc;
+}
+
+static instruction_cb decode(uint16_t instruction, OPCODE* opcode) {
+        // decode
+        instruction_cb instruction_function = instruction_get(instruction, opcode);
+        if (instruction_function == NULL) {
+            // could not identify instruction, exit
+            LOGE(
+                "Unable to fetch instruction callback for instruction %u (%x)",
+                instruction, instruction);
+            exit(EXIT_FAILURE);
+        }
+        return instruction_function;
+}
 
 void run(void)
 {
     uint16_t instruction_count = 0;
     uint16_t instruction = 0x0;
     instruction_cb instruction_function = NULL;
+    OPCODE opcode;
     // for now, we ignore the timers as they are not clear for me yet
 
     if (!interpreter_context.read_only) {
@@ -106,42 +140,21 @@ void run(void)
             sdl_get_input();
         }
 
-        // fetch
-        instruction = (interpreter_context.memory[interpreter_context.pc] << 8)
-            | interpreter_context.memory[interpreter_context.pc + 1];
-        instruction_count++;
-        LOGD("***********************************");
-        uint16_t next_pc = interpreter_context.pc + 2;
-        LOGD(
-            "Current PC = %u (0x%x) (instruction #%u), incrementing to %u (0x%x).",
-            interpreter_context.pc,
-            interpreter_context.pc,
-            instruction_count,
-            next_pc,
-            next_pc);
-        // increment the PC immediately by 2
-        interpreter_context.pc = next_pc;
+        uint8_t num_instructions = 8;
+        for (size_t i = 0; i < num_instructions; i++) {
+            instruction = fetch(&interpreter_context);
+            increment_pc(&interpreter_context);
+            instruction_function = decode(instruction, &opcode);
 
-        // decode
-        OPCODE opcode;
-        instruction_function = instruction_get(instruction, &opcode);
-        if (instruction_function == NULL) {
-            // could not identify instruction, exit
-            LOGE(
-                "Unable to fetch instruction callback for instruction %u (%x)",
-                instruction, instruction);
-            exit(EXIT_FAILURE);
+            if (interpreter_context.read_only) {
+                continue;
+            }
+            
+            // execute
+            LOGD("Executing instruction with opcode %u.", opcode);
+            instruction_function(&interpreter_context, instruction);
+            // instruction_test(&interpreter_context, OPCODE_FX65);
         }
-
-        if (interpreter_context.read_only) {
-            LOGD("%u", opcode);
-            continue;
-        }
-
-        // execute
-        LOGD("Executing instruction with opcode %u.", opcode);
-        instruction_function(&interpreter_context, instruction);
-        // instruction_test(&interpreter_context, OPCODE_FX65);
 
         sdl_present_scene(interpreter_context.image);
         // should be replaced by timer of chip 8?
