@@ -7,11 +7,12 @@
 typedef struct Image Image;
 
 Image* sdl_init(int width, int height);
-void sdl_get_input(void);
+void sdl_get_input(Image* image);
 void sdl_prepare_scene(Image* image);
 void sdl_present_scene(Image* image);
 void sdl_do_delay(uint32_t delay);
 void sdl_free(Image* image);
+uint32_t sdl_get_ticks_ms(void);
 
 // CHIP 8 related instructions
 

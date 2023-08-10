@@ -7,20 +7,87 @@
 #include "instruction.h"
 #include "log.h"
 
+typedef enum {
+    KEY_1,
+    KEY_2,
+    KEY_3,
+    KEY_4,
+    KEY_Q,
+    KEY_W,
+    KEY_E,
+    KEY_R,
+    KEY_A,
+    KEY_S,
+    KEY_D,
+    KEY_F,
+    KEY_Z,
+    KEY_X,
+    KEY_C,
+    KEY_V,
+    KEY_MAX /* for counting purposes */
+} Keys;
+
+static char* keys[KEY_MAX] = {
+    [KEY_1] = "1",
+    [KEY_2] = "2",
+    [KEY_3] = "3",
+    [KEY_4] = "4",
+    [KEY_Q] = "Q",
+    [KEY_W] = "W",
+    [KEY_E] = "E",
+    [KEY_R] = "R",
+    [KEY_A] = "A",
+    [KEY_S] = "S",
+    [KEY_D] = "D",
+    [KEY_F] = "F",
+    [KEY_Z] = "Z",
+    [KEY_X] = "X",
+    [KEY_C] = "C",
+    [KEY_V] = "V",
+};
+
 struct Image
 {
     SDL_Renderer* renderer;
     SDL_Window* window;
     uint8_t screen[IMAGE_WIDTH][IMAGE_HEIGHT];
+    uint8_t pressed[KEY_MAX]; /* can be used for instruction EX9E and EXA1 */
 };
 
+static int8_t get_key_index(const char* key_name) {
+    for (uint8_t i = 0; i < KEY_MAX; i++) {
+        if (strcmp(key_name, keys[i]) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
 
-void sdl_get_input(void)
+static void set_key_state(Image* app, SDL_KeyboardEvent *key) {
+    const char* key_pressed = SDL_GetKeyName(key->keysym.sym);
+    int8_t ix = get_key_index(key_pressed);
+    if (ix >= 0 && ix < KEY_MAX) {
+        if (key->type == SDL_KEYDOWN) {
+            LOGD("Legit key %s is pressed.", key_pressed);
+            app->pressed[ix] = 1;
+        } else {
+            LOGD("Legit key %s is released.", key_pressed);
+            app->pressed[ix] = 0;
+            exit(0);
+        }
+    }
+}
+
+void sdl_get_input(Image* app)
 {
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            set_key_state(app, &event.key);
+            break;
         case SDL_QUIT:
             exit(0);
             break;
@@ -44,6 +111,10 @@ void sdl_present_scene(Image* app)
 void sdl_do_delay(uint32_t delay)
 {
     SDL_Delay(delay);
+}
+
+uint32_t sdl_get_ticks_ms(void) {
+    return SDL_GetTicks();
 }
 
 void sdl_free(Image* app)
