@@ -14,6 +14,10 @@
 #define ADDR_BUILTIN_FONT 0x50    // memory address should go from 0x50 to 0x9F
 #define ADDR_START_PROGRAM 0x200  // start memory address of chip-8 program
 
+#define INSTRUCTIONS_PER_SECOND 500 // let's run at 500 Hz, as should be a good speed (cfr. online references)
+#define FRAMES_PER_SECOND 60
+#define INSTRUCTIONS_PER_FRAME (INSTRUCTIONS_PER_SECOND / FRAMES_PER_SECOND)
+
 typedef struct
 {
     uint8_t memory[4096];

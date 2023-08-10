@@ -75,6 +75,10 @@ void init(const char* program, bool read_only)
     if (!interpreter_context.read_only) {
         interpreter_context.image = sdl_init(IMAGE_WIDTH, IMAGE_HEIGHT);
     }
+    // CHANGE TO 0
+    interpreter_context.delay_timer = 60;
+    interpreter_context.sound_timer = 60;
+
     // initialize built in font
     init_builtin_font();
 
@@ -123,6 +127,18 @@ static instruction_cb decode(uint16_t instruction, OPCODE* opcode) {
         return instruction_function;
 }
 
+static void update_timers(InterpreterContext* ctx) {
+    if (ctx->delay_timer > 0) {
+        ctx->delay_timer--;
+        LOGD("Decremented delay timer to %u.", ctx->delay_timer);
+    }
+
+    if (ctx->sound_timer > 0) {
+        ctx->sound_timer--;
+        LOGD("Decremented sound timer to %u.", ctx->sound_timer);
+    }
+}
+
 void run(void)
 {
     uint16_t instruction_count = 0;
@@ -135,13 +151,15 @@ void run(void)
         sdl_prepare_scene(interpreter_context.image);
     }
     //while (instruction_count < 2) {
+    //while (interpreter_context.instruction_count < 60) {
     while(1) {
         if (!interpreter_context.read_only) {
-            sdl_get_input();
+            sdl_get_input(interpreter_context.image);
         }
 
-        uint8_t num_instructions = 8;
-        for (size_t i = 0; i < num_instructions; i++) {
+        uint32_t start_time = sdl_get_ticks_ms();
+
+        for (size_t i = 0; i < INSTRUCTIONS_PER_FRAME; i++) {
             instruction = fetch(&interpreter_context);
             increment_pc(&interpreter_context);
             instruction_function = decode(instruction, &opcode);
@@ -156,9 +174,25 @@ void run(void)
             // instruction_test(&interpreter_context, OPCODE_FX65);
         }
 
+        // render screen
         sdl_present_scene(interpreter_context.image);
-        // should be replaced by timer of chip 8?
-        sdl_do_delay(200);
+
+        update_timers(&interpreter_context);
+
+        uint32_t stop_time = sdl_get_ticks_ms();
+        uint32_t execution_time = (stop_time - start_time);
+        LOGD("execution_time was = %"PRIu32" ms (%"PRIu32" - %"PRIu32").", execution_time, start_time, stop_time);
+        // 1000 ms over the number of frames, gives the x ms per frame
+        uint32_t fps_ms = (1000.0 / FRAMES_PER_SECOND);
+        uint32_t delay = fps_ms - execution_time;
+        LOGD("delay = %"PRIu32" and fps_ms = %"PRIu32".", delay, fps_ms);
+        if (delay > fps_ms) {
+            // underflow happening
+            // meaning that all time was spent by executed instructions
+            // so you should continue immediately
+            continue;
+        } 
+        sdl_do_delay(delay);
     }
     sdl_free(interpreter_context.image);
 }
